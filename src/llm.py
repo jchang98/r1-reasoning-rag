@@ -4,8 +4,120 @@ load_dotenv()
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
 
-r1 = ChatNVIDIA(model="deepseek-ai/deepseek-r1",
-                api_key=os.getenv("NVIDIA_API_KEY"), 
-                temperature=0.6,
-                top_p=0.7,
-                max_tokens=4096)
+import asyncio
+import os
+import typer
+import tiktoken
+from typing import Optional
+# Assuming we're using OpenAI's API
+import openai
+
+
+
+
+def create_openai_client(api_key: str, base_url: Optional[str] = None) -> openai.OpenAI:
+    return openai.OpenAI(
+        api_key=api_key, base_url=base_url or "https://api.openai.com/v1"
+    )
+
+
+def create_deepseek_client(
+    api_key: str, base_url: Optional[str] = None
+) -> openai.OpenAI:
+    return openai.OpenAI(
+        api_key=api_key, base_url=base_url or "https://api.deepseek.com/v1"
+    )
+
+
+
+def get_ai_client(model) -> openai.OpenAI:
+    # Decide which API key and endpoint to use
+    if model.startswith("ep-") or model.startswith("deepseek"):
+        service = "deepseek"
+        model = "ep-20250208165153-wn9ft"
+    else:
+        service = "openai"
+
+
+    if service.lower() == "openai":
+        api_key = os.getenv("OPENAI_API_KEY")
+        endpoint = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+        if not api_key:
+            print("[red]Missing OPENAI_API_KEY in environment[/red]")
+            raise typer.Exit(1)
+        client = create_openai_client(api_key=api_key, base_url=endpoint)
+
+        return client
+    elif service.lower() == "deepseek" or service.lower().startswith("ep-"):
+        api_key = os.getenv("DEEPSEEK_API_KEY")
+        endpoint = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
+        if not api_key:
+            print("[red]Missing DEEPSEEK_API_KEY in environment[/red]")
+            raise typer.Exit(1)
+        client = create_deepseek_client(api_key=api_key, base_url=endpoint)
+
+        return client
+    else:
+        print(
+            "[red]Invalid service selected. Choose 'openai' or 'deepseek'.[/red]"
+        )
+        raise typer.Exit(1)
+
+
+MIN_CHUNK_SIZE = 140
+
+
+def get_token_count(model, text: str) -> int:
+    """Returns the number of tokens in a given text."""
+
+    if model.startswith("ep-") or model.startswith("deepseek"):
+        service = "deepseek"
+        model = "ep-20250208165153-wn9ft"
+    else:
+        service = "openai"
+
+    if service.lower() == "openai":
+        encoder = tiktoken.get_encoding(
+            "cl100k_base"
+        )  # Updated to use OpenAI's current encoding
+        return len(encoder.encode(text))
+    elif service.lower() == "deepseek":
+        encoder = tiktoken.get_encoding("cl100k_base")
+        return len(encoder.encode(text))
+
+
+
+
+async def generate_completions(client, model, messages, format=None):
+    if model.startswith("ep-") or model.startswith("deepseek"):
+        service = "deepseek"
+        model = "ep-20250208165153-wn9ft"
+    else:
+        service = "openai"
+
+    
+    if service == "ollama":
+        response = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: client.chat(
+                model=model, messages=messages, stream=False, format=format
+            ),
+        )
+    else:
+        # Run OpenAI call in thread pool since it's synchronous
+        response = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: client.chat.completions.create(
+                model=model, messages=messages, response_format=format
+            ),
+        )
+    return response
+
+r1 = get_ai_client("ep-20250208165153-wn9ft")
+
+# r1 = ChatNVIDIA(model="ep-20250208165153-wn9ft",
+#                 api_key=os.getenv("DEEPSEEK_API_KEY"), 
+#                 base_url=os.getenv("DeepSEEK_BASE_URL"),
+#                 temperature=0.6,
+#                 top_p=0.7,
+#                 max_tokens=4096)
