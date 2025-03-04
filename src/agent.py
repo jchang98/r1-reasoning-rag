@@ -2,6 +2,7 @@ from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
 # from tavily import TavilyClient
 from src.client import SearchClient
+from src.utils import * 
 from dotenv import load_dotenv
 import os
 from src.prompts import Prompts
@@ -9,6 +10,7 @@ from src.llm import r1
 import json
 import re
 from graphviz import Digraph
+from datetime import datetime
 load_dotenv()
 
 class GraphState(TypedDict):
@@ -37,7 +39,7 @@ class QAAgent:
         print("\n=== STEP 2: VALIDATION ===")
         question = state["question"]
         retrieved_context = state["retrieved_context"]
-        print("Retrieved Context: \n", retrieved_context)
+        # print("Retrieved Context: \n", retrieved_context)
         # validation_chain = Prompts.VALIDATE_RETRIEVAL | r1
         # llm_output = validation_chain.invoke({"retrieved_context": retrieved_context, "question": question}).content
 
@@ -51,7 +53,7 @@ class QAAgent:
         
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         response = llm_output.choices[0].message.content.strip()
-        print("reasoning:", reasoning)
+        # print("reasoning:", reasoning)
         try:
             strcutured_response = json.loads(response)
         except:
@@ -77,7 +79,6 @@ class QAAgent:
 
         # answer_chain = Prompts.ANSWER_QUESTION | r1
         # llm_output = answer_chain.invoke({"retrieved_context": context, "question": question}).content
-
         prompt = Prompts.ANSWER_QUESTION.invoke({"retrieved_context": context, "question": question}).text
         messages = [
             {"role": "user", "content": prompt}
@@ -88,19 +89,30 @@ class QAAgent:
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
         print(f"final_answer: {answer}")
-        return {"answer_to_question": answer}
+        return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'] }
 
     def find_missing_information(self, state: GraphState):
         print("\n=== STEP 2b: FINDING MISSING INFORMATION ===")
         missing_information = state["missing_information"]
         print("Searching for:", missing_information)
         
+        # 从state中获取循环计数，如果没有则初始化为1
+        loop_count = state.get("loop_count", 1)
+        if loop_count >= 5:  # 设置最大循环次数为5
+            print("达到最大重试次数，强制完成")
+            return {
+                "retrieved_context": state["retrieved_context"],
+                "router_decision": "COMPLETE",  # 强制完成
+                "loop_count": loop_count
+            }
+        
+
         tavily_query = self.tavily_client.search(missing_information, max_results=3)
         previously_retrieved_useful_information = state["useful_information"]
         newly_retrieved_context = "\n".join([r["content"] for r in tavily_query])
         combined_context = f"{previously_retrieved_useful_information}\n{newly_retrieved_context}"
-        print("newly retrieved context:", newly_retrieved_context)
-        return {"retrieved_context": combined_context}
+        # print("newly retrieved context:", newly_retrieved_context)
+        return {"retrieved_context": combined_context, "loop_count": loop_count+1}
 
     @staticmethod
     def decide_route(state: GraphState):
@@ -153,11 +165,56 @@ class QAAgent:
         
         return compiled_graph
 
+    def gen_outline(self, question: str):
+        print("\n=== OUTLINES GENERATION ===")
+        prompt = Prompts.OUTLINES_GEN.invoke({"question": question}).text
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+        llm_output = r1.chat.completions.create(
+            model="ep-20250208165153-wn9ft", messages=messages
+        )
+        reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        answer = llm_output.choices[0].message.content.strip()
+        print(f"Init Outlines:\n{answer}")
+        return answer
+    
+    def get_final_report(self, outlines: list, results: list):
+        assert len(outlines) == len(results)
+        final_report = ''
+        for outline, result in zip(outlines, results):
+            final_report += f"# {outline}\n{result['answer_to_question']}\n\n"
+
+        return final_report
+
+
     def run(self, question: str):
         # 先生成一个大纲，然后每个大纲去调用 workflow.invoke
+        start_time = datetime.now()
 
-        result = self.workflow.invoke({"question": question})
-        return result["answer_to_question"]
+        outlines = self.gen_outline(question)
+        outlines_lst = re.findall(r'\d\.?\s*(.*?)(?=\n\d+\.|$)', outlines, re.DOTALL)
+        outlines_lst = [item.strip() for item in outlines_lst]
+
+        results = parallel_process(
+            outlines_lst,
+            lambda x: self.workflow.invoke({"question": f"{question}-{x}"}, {"recursion_limit": 999}),
+        )
+        # result = self.workflow.invoke({"question": question})
+
+        # 根据result的内容去拼接正文
+        final_repot = self.get_final_report(outlines_lst, results)
+        print("==== FINAL REPORT ====")
+        print(final_repot)
+
+        end_time = datetime.now()
+        print(f"Total time: {end_time - start_time}")
+        # Save report
+        os.makedirs("output", exist_ok=True)
+        with open(f"output/{question}_{start_time.strftime('%Y%m%d%H%M%S')}.md", "w") as f:
+            f.write(final_repot)
+
+        return final_repot
 
 if __name__ == "__main__":
     agent = QAAgent()
