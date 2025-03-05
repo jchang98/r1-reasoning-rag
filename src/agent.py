@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 from src.prompts import Prompts
 from src.llm import r1
+from src.logging import log_event, initial_logger
+from src.utils import console
 import json
 import re
 from graphviz import Digraph
@@ -28,20 +30,37 @@ class QAAgent:
         self.workflow = self.create_workflow()
 
     def retrieve(self, state: GraphState):
-        print("\n=== STEP 1: RETRIEVAL ===")
+        # print("\n=== STEP 1: RETRIEVAL ===")
         question = state["question"]
-        print("Searching for:", question)
         result = self.tavily_client.search(question, max_results=3)
         retrieved_context = "\n".join([r["content"] for r in result])
+
+        console.print(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\n\nRetrieved Context: \n{retrieved_context}")
+        log_event(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\n\nRetrieved Context: \n{retrieved_context}")
         return {"retrieved_context": retrieved_context}
 
     def validate_retrieval(self, state: GraphState):
-        print("\n=== STEP 2: VALIDATION ===")
+        # print("\n=== STEP 2: VALIDATION ===")
         question = state["question"]
         retrieved_context = state["retrieved_context"]
         # print("Retrieved Context: \n", retrieved_context)
         # validation_chain = Prompts.VALIDATE_RETRIEVAL | r1
         # llm_output = validation_chain.invoke({"retrieved_context": retrieved_context, "question": question}).content
+
+        # 从state中获取循环计数，如果没有则初始化为1
+        loop_count = state.get("loop_count", 1)
+        if loop_count >= 5:  # 设置最大循环次数为5
+            console.print("达到最大重试次数，强制完成")
+            log.event("达到最大重试次数，强制完成")
+            return {
+                "router_decision": "COMPLETE",  # 强制完成
+                "retrieved_context": state["retrieved_context"],
+                "useful_information": state["useful_information"],
+                "missing_information": state["missing_information"],
+                "reasoning": state["reasoning"],
+                "loop_count": loop_count+1
+            }
+
 
         prompt = Prompts.VALIDATE_RETRIEVAL.invoke({"retrieved_context": retrieved_context, "question": question}).text
         messages = [
@@ -63,17 +82,17 @@ class QAAgent:
         router_decision = strcutured_response["status"]
         missing_information = strcutured_response["missing_information"]
         useful_information = strcutured_response["useful_information"]
-        print("router decision:", router_decision)
-        print("missing information:", missing_information)
-        print("useful information:", useful_information)
+        console.print(f"\n=== STEP 2: VALIDATION ===\nrouter decision:{router_decision}\nmissing information:{missing_information}\nuseful information:{useful_information}")
+        log_event(f"\n=== STEP 2: VALIDATION ===\nrouter decision:{router_decision}\nmissing information:{missing_information}\nuseful information:{useful_information}")
 
         if router_decision == "INCOMPLETE":
-            print("Missing Information:", missing_information)
+            console.print(f"\n=== STEP 2: VALIDATION ===\nMissing Information:{missing_information}")
+            log_event(f"\n=== STEP 2: VALIDATION ===\nMissing Information:{missing_information}")
 
-        return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": reasoning}
+        return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": reasoning, "loop_count": loop_count+1}
 
     def answer(self, state: GraphState):
-        print("\n=== STEP 3: ANSWERING ===")
+        # print("\n=== STEP 3: ANSWERING ===")
         question = state["question"]
         context = state["retrieved_context"]
 
@@ -88,31 +107,23 @@ class QAAgent:
         )
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
-        print(f"final_answer: {answer}")
+        console.print(f"\n=== STEP 3: ANSWERING ===\nfinal_answer: {answer}")
         return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'] }
 
     def find_missing_information(self, state: GraphState):
-        print("\n=== STEP 2b: FINDING MISSING INFORMATION ===")
+        # print("\n=== STEP 2b: FINDING MISSING INFORMATION ===")
         missing_information = state["missing_information"]
-        print("Searching for:", missing_information)
-        
-        # 从state中获取循环计数，如果没有则初始化为1
-        loop_count = state.get("loop_count", 1)
-        if loop_count >= 5:  # 设置最大循环次数为5
-            print("达到最大重试次数，强制完成")
-            return {
-                "retrieved_context": state["retrieved_context"],
-                "router_decision": "COMPLETE",  # 强制完成
-                "loop_count": loop_count
-            }
-        
-
+        # print("Searching for:", missing_information)
+                
         tavily_query = self.tavily_client.search(missing_information, max_results=3)
         previously_retrieved_useful_information = state["useful_information"]
         newly_retrieved_context = "\n".join([r["content"] for r in tavily_query])
+
+        console.print(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nSearching for missing:{missing_information}\nNewly retrieved context: \n{newly_retrieved_context}")
+
         combined_context = f"{previously_retrieved_useful_information}\n{newly_retrieved_context}"
         # print("newly retrieved context:", newly_retrieved_context)
-        return {"retrieved_context": combined_context, "loop_count": loop_count+1}
+        return {"retrieved_context": combined_context}
 
     @staticmethod
     def decide_route(state: GraphState):
@@ -166,7 +177,7 @@ class QAAgent:
         return compiled_graph
 
     def gen_outline(self, question: str):
-        print("\n=== OUTLINES GENERATION ===")
+        # print("\n=== OUTLINES GENERATION ===")
         prompt = Prompts.OUTLINES_GEN.invoke({"question": question}).text
         messages = [
             {"role": "user", "content": prompt}
@@ -176,7 +187,9 @@ class QAAgent:
         )
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
-        print(f"Init Outlines:\n{answer}")
+
+        console.print(f"\nInit Outlines:\n{answer}")
+        log_event(f"\nInit Outlines:\n{answer}")
         return answer
     
     def get_final_report(self, outlines: list, results: list):
@@ -191,10 +204,11 @@ class QAAgent:
     def run(self, question: str):
         # 先生成一个大纲，然后每个大纲去调用 workflow.invoke
         start_time = datetime.now()
+        initial_logger(logging_path="logs", enable_stdout=False, log_file_name=f"{question}_{start_time.strftime('%Y%m%d%H%M%S')}")
 
         outlines = self.gen_outline(question)
         outlines_lst = re.findall(r'\d\.?\s*(.*?)(?=\n\d+\.|$)', outlines, re.DOTALL)
-        outlines_lst = [item.strip() for item in outlines_lst]
+        outlines_lst = [item.strip() for item in outlines_lst][:1]
 
         results = parallel_process(
             outlines_lst,

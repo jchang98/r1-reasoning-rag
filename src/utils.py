@@ -1,4 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from rich.console import Console
+
+
+console = Console()
 
 def parallel_process(lst, process_element, use_threads=True, max_workers=10):
     """

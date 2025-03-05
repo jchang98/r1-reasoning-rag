@@ -11,8 +11,26 @@ import tiktoken
 from typing import Optional
 # Assuming we're using OpenAI's API
 import openai
+import requests
 
 
+
+def get_r1_ask(messages):
+    url = "http://arsenal-openai.myhexin.com/vtuber/ai_access/qianfan/v1/chat/completions"
+
+    headers = {
+        "userId":os.getenv("THS_DEEPSEEK_USER_ID"),
+        "token": os.getenv("THS_DEEPSEEK_TOKEN"),
+        "Content-Type" : "application/json"
+    }
+
+    data = {
+        "model": "deepseek-r1",
+        "messages": message
+    }
+    response = requests.post(url, headers=headers, json=data)
+
+    return response
 
 
 def create_openai_client(api_key: str, base_url: Optional[str] = None) -> openai.OpenAI:
@@ -121,3 +139,15 @@ r1 = get_ai_client("ep-20250208165153-wn9ft")
 #                 temperature=0.6,
 #                 top_p=0.7,
 #                 max_tokens=4096)
+
+
+if __name__ == "__main__":
+
+    message = [
+        {
+            "role": "user",
+            "content": "马克思是谁"
+        }
+    ]
+    res = get_r1_ask(message)
+    print(res)
