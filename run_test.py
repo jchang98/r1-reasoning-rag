@@ -1,6 +1,8 @@
 import streamlit as st
 from streamlit_mermaid import st_mermaid
 import re
+import uuid
+
 
 
 def mermaid(report: str, add_str: str = ""):
@@ -13,7 +15,7 @@ def mermaid(report: str, add_str: str = ""):
                     continue
                 if part.strip().startswith('```mermaid'):
                     code = re.search(r'```mermaid\s*(.*?)\s*```', part, re.DOTALL).group(1)
-                    st_mermaid(code)
+                    st_mermaid(code, key=str(uuid.uuid4()))
                 else:
                     st.markdown(part)
 
@@ -54,6 +56,7 @@ gantt
 """
 
 
+mermaid(report)
 mermaid(report)
 st.text("# safdd\n - asdfads")
 st.markdown("# safdd\n - asdfads")

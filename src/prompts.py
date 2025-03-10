@@ -1,10 +1,12 @@
 from langchain_core.prompts import PromptTemplate
+from datetime import datetime
+now = datetime.now().strftime("%Y-%m-%d")
 
 class Prompts:
     GEN_FC_QUERY = PromptTemplate(
-        input_variables=["question"],
+        input_variables=["question", "now"],
         template="""
-        You are an expert assistant who can solve any task using  tool calls. You will be given a task to solve as best you can.
+        You are an expert assistant who can solve any task using  tool calls. You will be given a task to solve as best you can. Today is {now}.
         To do so, you have been given access to the following tools: 
         {{"name": "search", "description": "useful for when you need to answer questions about current events, news."}}
         {{"name": "data_agent", "description": "useful for when you need to get financial data, including company and industry financial data."}}
@@ -50,14 +52,15 @@ class Prompts:
     )
 
     OUTLINES_GEN = PromptTemplate(
-        input_variables=["question", "max_outline_num"],
+        input_variables=["question", "max_outline_num", "now"],
         template="""
-        You are an outline generator agent. 
+        You are an outline generator agent. Today is {now}.
         You will be given a problem and your role is to generate a structured outline that will help you generate a professional report on the problem. 
         - Please clarify the user's needs according to the user's input questions, so that the generated outline meets the user's needs.
         - The generated report should be professional, well structured, logical, and complete.
         - The outline includes level 1 'headings' and the 'research_goal' corresponding to level 1 headings.
         - The number of headings cannot exceed {max_outline_num}.
+        - Do not generate a 'headings' like 'conclusion' in the generated outline.
         - please response in chinese.
         
         Please response in the following format, returns a json list:
@@ -74,9 +77,9 @@ class Prompts:
         Outline:"""
     )
     GEN_USEFUL_INFO = PromptTemplate(
-        input_variables=["retrieved_context", "question"],
+        input_variables=["retrieved_context", "question", "now"],
         template="""
-        You are a useful information generator agent.
+        You are a useful information generator agent. Today is {now}.
         You will be provided with a question and chunks of text that may or may not contain the answer to the question.
         Your role is to carefullylook through the chunks of text provide the useful information from the retrieved chunks.
 
@@ -94,9 +97,9 @@ class Prompts:
         """
     )
     VALIDATE_RETRIEVAL = PromptTemplate(
-        input_variables=["useful_information", "question"],
+        input_variables=["useful_information", "question", "now"],
         template="""
-        You are a retrieval validator.
+        You are a retrieval validator. Today is {now}.
         You will be provided with a question and chunks of text that may or may not contain the answer to the question.
         Your role is to carefullylook through the chunks of text provide a JSON response with two fields:
         1. status: whether the retrieved chunks contain the answer to the question.
@@ -125,9 +128,9 @@ class Prompts:
         """
     )
     ANSWER_QUESTION = PromptTemplate(
-        input_variables=["useful_information", "question"],
+        input_variables=["useful_information", "question", "now"],
         template="""
-        You are a deep research writing agent.
+        You are a deep research writing agent. Today is {now}.
         You will be provided with a topic and chunks of text that contain the related information to the topic.
         Your role is to carefully look through the chunks of text and write a deep research about the topic.
         
@@ -145,9 +148,9 @@ class Prompts:
         """
     )
     POLIESH_ANSWER = PromptTemplate(
-        input_variables=["question", "outlines", "draft_writing"],
+        input_variables=["question", "outlines", "draft_writing", "now"],
         template="""
-        You are a profession writing agent.
+        You are a profession writing agent. Today is {now}.
         You won't delete any non-repeated part in the draft article. You will keep the charts(mermaid and markdown table code block) and draft article structure (indicated by "#") appropriately. Do your job for the following draft article.
 
     

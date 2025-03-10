@@ -17,7 +17,9 @@ import itertools
 import streamlit as st
 from streamlit_mermaid import st_mermaid
 from queue import Queue
+import uuid
 load_dotenv()
+now = datetime.now().strftime("%Y-%m-%d")
 
 global MAX_LOOP_COUNT
 MAX_LOOP_COUNT = 5
@@ -45,7 +47,7 @@ class QAAgent:
     def fc(self, question):
         # 根据question生成fc_querys                 
         
-        prompt = Prompts.GEN_FC_QUERY.invoke({"question": question}).text
+        prompt = Prompts.GEN_FC_QUERY.invoke({"question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -66,7 +68,7 @@ class QAAgent:
     
     def get_useful_info(self, question, retrieved_context):
         # 获得有用的信息
-        prompt = Prompts.GEN_USEFUL_INFO.invoke({"retrieved_context": retrieved_context, "question": question}).text
+        prompt = Prompts.GEN_USEFUL_INFO.invoke({"retrieved_context": retrieved_context, "question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -133,7 +135,7 @@ class QAAgent:
             }
 
 
-        prompt = Prompts.VALIDATE_RETRIEVAL.invoke({"useful_information": useful_information, "question": question}).text
+        prompt = Prompts.VALIDATE_RETRIEVAL.invoke({"useful_information": useful_information, "question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -170,7 +172,7 @@ class QAAgent:
         context = state["retrieved_context"]
         useful_information = state['useful_information']
 
-        prompt = Prompts.ANSWER_QUESTION.invoke({"useful_information": useful_information, "question": question}).text
+        prompt = Prompts.ANSWER_QUESTION.invoke({"useful_information": useful_information, "question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -281,7 +283,7 @@ class QAAgent:
 
     def gen_outline(self, question: str, max_outline_num: int = 8):
         # print("\n=== OUTLINES GENERATION ===")
-        prompt = Prompts.OUTLINES_GEN.invoke({"question": question, "max_outline_num": max_outline_num}).text
+        prompt = Prompts.OUTLINES_GEN.invoke({"question": question, "max_outline_num": max_outline_num, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -322,7 +324,7 @@ class QAAgent:
 
             polish_report_str = "\n\n".join([f"# {t_outline['headings']}\n{t_report['answer_to_question']}" for t_outline, t_report in zip(polish_outline, polish_report)])
 
-            prompt = Prompts.POLIESH_ANSWER.invoke({"question": question, "outlines": polish_outline_str, "draft_writing": polish_report_str}).text
+            prompt = Prompts.POLIESH_ANSWER.invoke({"question": question, "outlines": polish_outline_str, "draft_writing": polish_report_str, "now": now}).text
             messages = [
                 {"role": "user", "content": prompt}
             ]
@@ -360,7 +362,7 @@ class QAAgent:
                         continue
                     if part.strip().startswith('```mermaid'):
                         code = re.search(r'```mermaid\s*(.*?)\s*```', part, re.DOTALL).group(1)
-                        st_mermaid(code)
+                        st_mermaid(code, key=str(uuid.uuid4()))
                     else:
                         st.markdown(part)
 
