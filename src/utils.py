@@ -4,7 +4,7 @@ from rich.console import Console
 
 console = Console()
 
-def parallel_process(lst, process_element, use_threads=True, max_workers=10):
+def parallel_process(lst, process_element, use_threads=True, max_workers=None):
     """
     通用并行处理函数。
 

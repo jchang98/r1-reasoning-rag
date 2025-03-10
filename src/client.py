@@ -2,6 +2,70 @@ from typing import Literal, Sequence, Optional, List, Union
 import requests
 import json
 from datetime import datetime
+import pandas as pd
+
+class TableWithDescription():
+    def __init__(self, table: pd.DataFrame, description:str, content:str):
+        self.table = table
+        self.description = description
+        self.content = content
+
+
+class DataClient:
+    """
+    DataClient is a client for the data.
+    """
+
+    def ifind_data(self, query: str, max_results: int = 4) -> list:
+        url = "http://open-server.51ifind.com/standardgwapi/arsenal_service/ifind-python-aime-tools-service/get_data"
+        headers = {
+            "X-Arsenal-Auth":"arsenal-tools",
+            "X-Switch": "enable_pick_result=0;enable_f9_data_agent_answer=0",
+            'Cookie': "osgw_app_id=b894fa1f3b044c35bd6220ba1d434fa5;osgw_uid=L20;osgw_udid=L20",
+            "x-ft-arsenal-auth": "L24FB1H14W54KQENSSPC4CSB2S0PPM5M",
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        params = {"query":query}
+
+        response = requests.post(url, data=params, headers=headers)
+        try:
+            sources = json.loads(
+                response.json()['data']['query_data']['condition']
+            )['datas']
+
+            table_with_description_list = list()
+            for source in sources:
+                source_info = source['datas']
+                for tb_info in source_info:
+                    try:
+                        description = ""
+                        if tb_info.get("title"):
+                            description = tb_info.get("title")
+                        elif tb_info.get("description"):
+                            description = tb_info.get("description")
+                        tb = tb_info.get("data")
+                        
+                        if isinstance(tb, list):
+                            tb = tb[0]
+                        columns = tb['columns']
+                        data = tb['data']
+
+                        df = pd.DataFrame(data, columns=columns)
+                        df_str = df.to_string()
+                        content = f"【{description}】\n{df_str}"
+                        # print(f"【{description}】")
+                        # print(df.head())
+                        table_with_description_list.append({
+                                "table": df_str,
+                                "description": description,
+                                "content": content,
+                                "type": "index"
+                            })
+                    except Exception as e:
+                        continue
+            return table_with_description_list[:max_results] if len(table_with_description_list) else []
+        except Exception as e:
+            return []
 
 class SearchClient:
     """
@@ -15,7 +79,7 @@ class SearchClient:
             'X-Arsenal-Auth': 'arsenal-tools'
         }
     
-    def search(self, query: str, max_results: int = 5, **kwargs):
+    def search(self, query: str, max_results: int = 2, **kwargs):
         data = {
             "query": query,
             "se": self.se,
@@ -57,7 +121,8 @@ class SearchClient:
                         "snippet": snippet,
                         "date": date,
                         "source": source,
-                        "content": content
+                        "content": content,
+                        "type": "search"
                     })
 
                 return organic_results_lst

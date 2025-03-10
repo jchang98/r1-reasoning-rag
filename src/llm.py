@@ -10,7 +10,7 @@ import typer
 import tiktoken
 from typing import Optional
 # Assuming we're using OpenAI's API
-import openai
+from openai import OpenAI, AsyncOpenAI
 import requests
 
 
@@ -33,22 +33,22 @@ def get_r1_ask(messages):
     return response
 
 
-def create_openai_client(api_key: str, base_url: Optional[str] = None) -> openai.OpenAI:
-    return openai.OpenAI(
+def create_openai_client(api_key: str, base_url: Optional[str] = None) :
+    return OpenAI(
         api_key=api_key, base_url=base_url or "https://api.openai.com/v1"
     )
 
 
 def create_deepseek_client(
     api_key: str, base_url: Optional[str] = None
-) -> openai.OpenAI:
-    return openai.OpenAI(
+) :
+    return OpenAI(
         api_key=api_key, base_url=base_url or "https://api.deepseek.com/v1"
     )
 
 
 
-def get_ai_client(model) -> openai.OpenAI:
+def get_ai_client(model) :
     # Decide which API key and endpoint to use
     if model.startswith("ep-") or model.startswith("deepseek"):
         service = "deepseek"
