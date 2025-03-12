@@ -12,7 +12,7 @@ def clean():
     # 保持用户输入为空
     if "user_input" in st.session_state:
         st.session_state['user_input'] = []
-    if 'input_type' not in st.session_state:
+    if 'input_type' in st.session_state:
         st.session_state['input_type'] = ""
     if "start_time" in st.session_state:
         st.session_state["start_time"] = ""
@@ -50,6 +50,7 @@ def main():
     max_loop = st.sidebar.slider('最大循环数', min_value=1, max_value=10, value=5)
     clear = st.sidebar.button("clear")
     if clear:
+        user_input =  ""
         clean()
 
     user_input = st.chat_input("Enter a question:")
