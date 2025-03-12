@@ -1,5 +1,7 @@
 from typing import Literal, Sequence, Optional, List, Union
 import requests
+from dotenv import load_dotenv
+load_dotenv()
 import json
 from datetime import datetime
 import pandas as pd
@@ -29,8 +31,8 @@ class DataClient:
         headers = {
             "X-Arsenal-Auth":"arsenal-tools",
             "X-Switch": "enable_pick_result=0;enable_f9_data_agent_answer=0",
-            'Cookie': "osgw_app_id=b894fa1f3b044c35bd6220ba1d434fa5;osgw_uid=L20;osgw_udid=L20",
-            "x-ft-arsenal-auth": "L24FB1H14W54KQENSSPC4CSB2S0PPM5M",
+            'Cookie': os.getenv("L20_COOKIE"),
+            "x-ft-arsenal-auth": os.getenv("L20_AUTH"),
             'Content-Type': 'application/x-www-form-urlencoded'
         }
         params = {"query":query}

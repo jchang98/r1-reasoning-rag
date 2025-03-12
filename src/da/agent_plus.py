@@ -69,7 +69,7 @@ async def ifind_data(query: str, max_results: int = 4) -> List[TableWithDescript
         "X-Arsenal-Auth":"arsenal-tools",
         "X-Switch": "enable_pick_result=0;enable_f9_data_agent_answer=0",
         'Cookie': os.getenv("L20_COOKIE"),
-        "x-ft-arsenal-auth": "L24FB1H14W54KQENSSPC4CSB2S0PPM5M",
+        "x-ft-arsenal-auth": os.getenv("L20_AUTH"),
         'Content-Type': 'application/x-www-form-urlencoded'
     }
     params = {"query":query}
