@@ -3,6 +3,13 @@ import requests
 import json
 from datetime import datetime
 import pandas as pd
+pd.set_option('display.max_rows', 30)
+import asyncio
+import httpx
+
+from src.da.basellm import *
+from src.da.prompts import *
+from src.da.agent_plus import *
 
 class TableWithDescription():
     def __init__(self, table: pd.DataFrame, description:str, content:str):
@@ -16,7 +23,8 @@ class DataClient:
     DataClient is a client for the data.
     """
 
-    def ifind_data(self, query: str, max_results: int = 4) -> list:
+    async def ifind_data(self, query: str, max_results: int = 4) -> list:
+        await asyncio.sleep(1)
         url = "http://open-server.51ifind.com/standardgwapi/arsenal_service/ifind-python-aime-tools-service/get_data"
         headers = {
             "X-Arsenal-Auth":"arsenal-tools",
@@ -27,8 +35,9 @@ class DataClient:
         }
         params = {"query":query}
 
-        response = requests.post(url, data=params, headers=headers)
         try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, data=params, headers=headers)
             sources = json.loads(
                 response.json()['data']['query_data']['condition']
             )['datas']
@@ -62,9 +71,36 @@ class DataClient:
                                 "type": "index"
                             })
                     except Exception as e:
-                        continue
+                        print(f"ifind_data: parser error:{e}")
+                        return []
             return table_with_description_list[:max_results] if len(table_with_description_list) else []
         except Exception as e:
+            print(f"ifind_data: requests error:{e}")
+            return []
+    
+
+    async def ifind_data_agent(self, query: str):
+        try:
+            client = OpenAIClient(verbose=False)
+            agent = DataAgent(
+                client=client, 
+                tools=[EXEC_LAMBDA, IFIND_QUERY],
+                acsv_files=list(), 
+                history=list(), 
+                results=dict(),
+                answer=str(),
+            )
+            await agent.call(query)
+
+            for k, v in agent.results.items():
+                globals()[k] = v
+
+            # 将agent.answer中的var和 Type 删除掉
+            final_res = re.sub(r"\nVar: \<result\_\d*\>; Type: \<class .*\>;", "", agent.answer)
+            final_res = re.sub(r"result\_\d*", "", final_res)
+            return [{"content": final_res, "type": "index"}]
+        except Exception as e:
+            print(f"ifind_data_agent: requests error:{e}")
             return []
 
 class SearchClient:
@@ -79,11 +115,11 @@ class SearchClient:
             'X-Arsenal-Auth': 'arsenal-tools'
         }
     
-    def search(self, query: str, max_results: int = 2, **kwargs):
+    async def search(self, query: str, max_results: int = 2, **kwargs):
         data = {
             "query": query,
             "se": self.se,
-            "limit": max_results,
+            "limit": max_results * 4,
             "user_id": "test",
             "app_id": "test",
             "trace_id": "test",
@@ -92,9 +128,13 @@ class SearchClient:
         if kwargs:
             data.update(kwargs)
         try:
-            response_dic = requests.post(self.url, data=data, headers=self.header)
+            async with httpx.AsyncClient() as client:
+                response_dic = await client.post(self.url, data=data, headers=self.header)
             if response_dic.status_code == 200:
                 response = json.loads(response_dic.text)['data']
+
+
+                response = sorted(response, key=lambda x: x['publish_time'] if x['publish_time'] else float("-inf"),reverse=True)
 
                 # 替换为serapi googlesearch的格式
                 organic_results_lst = []
@@ -125,7 +165,7 @@ class SearchClient:
                         "type": "search"
                     })
 
-                return organic_results_lst
+                return organic_results_lst[:max_results]
 
             else:
                 print(f"搜索失败，状态码：{response_dic.status_code}")

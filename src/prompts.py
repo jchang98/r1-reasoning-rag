@@ -3,6 +3,22 @@ from datetime import datetime
 now = datetime.now().strftime("%Y-%m-%d")
 
 class Prompts:
+    CLARIFY = PromptTemplate(
+        input_variables=["question", "now"],
+        template="""
+        You are a clarify agent. Today is {now}.
+
+        Analyze the research topic: "{question}" and identify any ambiguous or unclear aspects that need clarification. Generate up to 5 clarifying questions that will help better understand the user's research intent.
+        Requirements for the follow-up questions:
+        - Focus on ambiguous or undefined aspects in the original query.
+        - Please prompt the user to help narrow down the user's intent.
+        - If the original query is sufficiently clear and comprehensive, you may return an empty string.
+        - Return the response as raw text string.
+
+        The topic: {question}
+        Clarifying Questions:
+        """
+    )
     GEN_FC_QUERY = PromptTemplate(
         input_variables=["question", "now"],
         template="""
@@ -135,16 +151,44 @@ class Prompts:
         Your role is to carefully look through the chunks of text and write a deep research about the topic.
         
         Here is the requirement of your writing:
-        1. Don't include the topic title or try to write other sections, only write the article content without any formatting.
+        1. Don't start your writing with '# title' or try to write other sections, only write the article paragraph content directly.
         2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
         3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is professional, so as to attract readers to read.
         4. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
         5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
-        6. Do not include any other text. please response in chinese.
+        6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
+        7. Do not include any other text than the paragraph content. please response in chinese.
         
-        The topic: {question}
         Context: {useful_information}
-        writing:
+
+        The topic: {question}
+        Writing:
+        """
+    )
+    ANSWER_QUESTION_SERIAL = PromptTemplate(
+        input_variables=["useful_information", "question", "already_writing", "now"],
+        template="""
+        You are a deep research writing agent. Today is {now}.
+        You will be provided with a topic, the already written text and chunks of text that contain the related information to the topic.
+        Your role is to carefully look through the chunks of text and write a deep research about the topic.
+        
+        Here is the requirement of your writing:
+        1. Don't start your writing with '# title' or try to write other sections, only write the article paragraph content directly.
+        2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
+        3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is professional, so as to attract readers to read.
+        4. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
+        5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
+        6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
+        7. Maintain narrative consistency with previously written sections while avoiding content duplication. Ensure smooth transitions between sections.
+        8. Do not include any other text than the paragraph content. please response in chinese.
+        
+        Context: {useful_information}
+
+        Already written text:
+        {already_writing}
+
+        The topic: {question}
+        Writing:
         """
     )
     POLIESH_ANSWER = PromptTemplate(
@@ -160,14 +204,37 @@ class Prompts:
         - Do not include any other text. please response in chinese.
 
 
-        The topic you want to write:{question}
-
         The outlines of the article:
         {outlines}
 
         The draft article:
         {draft_writing}
 
+        The topic you want to write:{question}
         Polished article:
+        """
+    )
+    CONCLUSION = PromptTemplate(
+        input_variables=["question", "report", "now"],
+        template="""
+        You are a profession conclusion agent. Today is {now}.
+        You will be provided with a topic and the written article to the topic.
+        Your role is to carefully look through the written article and write a conclusion about the topic.
+
+
+        Here is the requirement of your conclusion:
+        1. Use "#" Title" to indicate conclusion title, don't generate a "##" Title.
+        2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
+        3. The conclusion should be combined with the previously written article to give a clear, fruitful and logical answer to the user's question
+        4. Please make sure that the numerical value, news information in the output 'conclusion' are all from the 'written article'.
+        5. For keywords information in output 'conclusion' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
+        6. Do not include any other text than the paragraph content. please response in chinese.
+
+
+        Written Article:
+        {report}
+
+        The topic: {question}
+        Conclusion:
         """
     )

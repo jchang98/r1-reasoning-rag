@@ -12,29 +12,39 @@ from typing import Optional
 # Assuming we're using OpenAI's API
 from openai import OpenAI, AsyncOpenAI
 import requests
+import httpx
 
 
-
-def get_r1_ask(messages):
-    url = "http://arsenal-openai.myhexin.com/vtuber/ai_access/qianfan/v1/chat/completions"
-
+async def get_r1_ask(messages):
+    url = "http://open-server.51ifind.com/standardgwapi/arsenal_hub/vtuber/ai_access/qianfan/v1/chat/completions"
+    # userId和token可以login之后获取
     headers = {
-        "userId":os.getenv("THS_DEEPSEEK_USER_ID"),
-        "token": os.getenv("THS_DEEPSEEK_TOKEN"),
-        "Content-Type" : "application/json"
+        "X-Arsenal-Auth":"arsenal-tools",
+        "x-ft-arsenal-auth": "L24FB1H14W54KQENSSPC4CSB2S0PPM5M",
+        'Cookie': os.getenv("L20_COOKIE"),
+        'userId': os.getenv("THS_DEEPSEEK_USER_ID"),
+        'token': os.getenv("THS_DEEPSEEK_TOKEN") ,
+        'Content-Type': 'application/json'
     }
-
     data = {
         "model": "deepseek-r1",
-        "messages": message
+        "messages": messages,
+        "stream": False
     }
-    response = requests.post(url, headers=headers, json=data)
+    # response = requests.post(url,headers=headers,json=data,verify=False, stream=False)
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, headers=headers, json=data, timeout=None)
 
-    return response
+    from dotmap import DotMap
+    if response.status_code == 200:
+        return DotMap(response.json())
+    else:
+        print("请求r1失败")
+        return {}
 
 
 def create_openai_client(api_key: str, base_url: Optional[str] = None) :
-    return OpenAI(
+    return AsyncOpenAI(
         api_key=api_key, base_url=base_url or "https://api.openai.com/v1"
     )
 
@@ -42,7 +52,7 @@ def create_openai_client(api_key: str, base_url: Optional[str] = None) :
 def create_deepseek_client(
     api_key: str, base_url: Optional[str] = None
 ) :
-    return OpenAI(
+    return AsyncOpenAI(
         api_key=api_key, base_url=base_url or "https://api.deepseek.com/v1"
     )
 
@@ -142,12 +152,11 @@ r1 = get_ai_client("ep-20250208165153-wn9ft")
 
 
 if __name__ == "__main__":
-
     message = [
         {
             "role": "user",
             "content": "马克思是谁"
         }
     ]
-    res = get_r1_ask(message)
+    res = asyncio.run(get_r1_ask(message))
     print(res)
