@@ -254,8 +254,8 @@ class QAAgent:
         # 删除answer中可能包含的标题
         topic_title = re.findall('请以‘(.*)’为标题', question)[0]
         sec_title = re.findall('，‘(.*)’为子标题', question)[0]
-        answer = re.sub(rf"(#*\s*{re.escape(topic_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)$", "", answer).strip()
-        answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)$", "", answer).strip()
+        answer = re.sub(rf"(#*\s*{re.escape(topic_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", answer).strip()
+        answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", answer).strip()
 
         console.print(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
         log_event(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
@@ -461,8 +461,8 @@ class QAAgent:
             # 删除t_answer中可能包含的标题
             topic_title = re.findall('请以‘(.*)’为标题', sec_question)[0]
             sec_title = re.findall('，‘(.*)’为子标题', sec_question)[0]
-            t_answer = re.sub(rf"(#*\s*{re.escape(topic_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)$", "", t_answer).strip()
-            t_answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)$", "", t_answer).strip()
+            t_answer = re.sub(rf"(#*\s*{re.escape(topic_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", t_answer).strip()
+            t_answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", t_answer).strip()
 
             serial_results_lsts.append(t_answer)
             already_writing = already_writing + f"# {outline['headings']}\n{t_answer}\n\n"
