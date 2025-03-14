@@ -92,25 +92,50 @@ class Prompts:
         The Question: {question}
         Outline:"""
     )
+
     GEN_USEFUL_INFO = PromptTemplate(
-        input_variables=["retrieved_context", "question", "now"],
+        input_variables=["retrieved_context","quote", "question", "now"],
         template="""
-        You are a useful information generator agent. Today is {now}.
-        You will be provided with a question and chunks of text that may or may not contain the answer to the question.
-        Your role is to carefullylook through the chunks of text provide the useful information from the retrieved chunks.
+    You are a useful information generator agent.  Today is {now}.  
+    You will be provided with a question, chunks of text that may or may not contain the answer to the question, and the corresponding citations for each chunk of text.  Your role is to carefully review the chunks of text and extract the useful information from the retrieved chunks.  Additionally, you must provide the corresponding citations for the useful information.  
+    The order of the text chunks called "context" and the order of the citations called "quote" are aligned. They are both divided by \n---\n.
+    
+    Here are the requirements:
+    - Remember, you must return both useful information and citations.  Retain the original citations.
+    - If there is no useful information, set this to an empty string.
+    - Please retain the information subject in the original information, as well as digital information, news policy information, reported news, etc.
+    - Please retain the information that you don't know.
+    - Return the useful information in an extremely detailed version, and return the additional context (if relevant).
+    - Please make sure that the numerical values, news information in the 'Useful Information' are all from the 'Context'.
+    - Please provide your response as a dictionary in the following format:
 
-        Here is the requirement:
-        - if there is no useful information, set this to an empty string
-        - Please retain the information subject in the original information, as well as digital information, news policy information, reported news, etc.
-        - Please retain the information that you don't know.
-        - Return the useful information in extremely detailed version, and return the additional context (if relevant):
-        - Please make sure that the numerical value, news information in the 'Useful Information' are all from the 'Context'.
 
-        Context: {retrieved_context}
+    Please response in the following format, returns a json list:
+        ```json
+        [
+        {{'useful_information': 'xxx', 'quote': 'xxx'}},
+        {{'useful_information': 'xxx', 'quote': 'xxx'}},
+        ...
+        ]
+        ```
+    Here is an example of input:
+    Context:"The capital city of Mexico is Mexico City."\n---\n"Beijing Municipality achieved a regional gross domestic product (GDP) of 4,984.31 billion yuan."
+    Quote:'https://simple.wikipedia.org/wiki/Mexico_City'\n---\n'https://baike.baidu.com/item/%e5%8c%97%e4%ba%ac%e5%b8%82/126069'
+    The Question: "What is the capital city of Mexico?"
 
-        The Question: {question}
-        Useful Information:
-        """
+    Here is an example of the response format:
+        
+        ```json
+        [
+        {{'useful_information': '"The capital city of Mexico is Mexico City."', 'quote': 'https://simple.wikipedia.org/wiki/Mexico_City'}},
+        ...
+        ]
+        ```
+
+    Context: {retrieved_context}
+    Quote:{quote}
+    The Question: {question}
+    Useful Information:"""
     )
     VALIDATE_RETRIEVAL = PromptTemplate(
         input_variables=["useful_information", "question", "now"],
@@ -216,25 +241,26 @@ class Prompts:
     )
     CONCLUSION = PromptTemplate(
         input_variables=["question", "report", "now"],
-        template="""
-        You are a profession conclusion agent. Today is {now}.
-        You will be provided with a topic and the written article to the topic.
-        Your role is to carefully look through the written article and write a conclusion about the topic.
-
-
-        Here is the requirement of your conclusion:
-        1. Use "#" Title" to indicate conclusion title, don't generate a "##" Title.
-        2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
-        3. The conclusion should be combined with the previously written article to give a clear, fruitful and logical answer to the user's question
-        4. Please make sure that the numerical value, news information in the output 'conclusion' are all from the 'written article'.
-        5. For keywords information in output 'conclusion' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
-        6. Do not include any other text than the paragraph content. please response in chinese.
-
-
-        Written Article:
+        template = """
+        # The following contents are the written article related to the user's question:
         {report}
 
-        The topic: {question}
-        Conclusion:
-        """
+
+        You now need to generate a conclusion based on the written article. When responding, please keep the following points in mind:
+        - Today is {now}.
+        - Use "#" Title" to indicate conclusion title, don't generate a "##" Title.
+        - You need to interpret and summarize the user's requirements, choose an appropriate format, fully utilize the 'written article', extract key information, and generate an answer that is insightful, creative, and professional. Extend the length of your response as much as possible, addressing each point in detail and from multiple perspectives, ensuring the content is rich and thorough.
+        - For analytical essay tasks, please provide insight and perspective on the topic, event, or phenomenon based on the user's question and written article.
+        - For predictive essay tasks: It is necessary to predict and speculate on future development based on existing data and trends.
+        - For explanatory essay tasks: You need to explain a concept, process, or phenomenon in detail, usually providing information in a clear, concise manner.
+        - For argumentative essay tasks: Please present an argument and support it with evidence and logical reasoning designed to convince the reader.
+        - For commentary essay tasks: You need to provide personal opinions and evaluations on a specific event, work, or phenomenon, often reflecting subjective viewpoints.
+        - For comparative essay tasks: You need to compare and contrast two or more topics, events, or phenomena, highlighting their similarities and differences.
+        - For review essay tasks: You need to offer a retrospective look at the historical development of a particular field or topic, summarizing key milestones and trends.
+        - plase response in chinese.
+
+
+        # The user's question is:
+        {question}"""
+    
     )

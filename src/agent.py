@@ -24,8 +24,9 @@ now = datetime.now().strftime("%Y-%m-%d")
 
 global MAX_LOOP_COUNT
 MAX_LOOP_COUNT = 5
+date_format = "%Y-%m-%d %H:%M:%S"
 
-
+max_log_file_length = 100
    
 class GraphState(TypedDict):
     question: str
@@ -38,12 +39,18 @@ class GraphState(TypedDict):
     useful_information: str
     loop_count: int
 
+    useful_quote:list[str]
+    outline_start_time: str
+    search_count: int
+    data_agent_count: int
+
 
 # 添加一个clarify
 async def get_feedback(question: str , model: str = "deepseek-r1-ths", start_time: datetime = datetime.now()):
     # 根据用户输入的问题生成澄清
 
-    initial_logger(logging_path="logs", enable_stdout=False, log_file_name=f"{question}_{start_time.strftime('%Y%m%d%H%M%S')}")
+    log_file_name = question[:max_log_file_length]
+    initial_logger(logging_path="logs", enable_stdout=False, log_file_name=f"{log_file_name}_{start_time.strftime('%Y%m%d%H%M%S')}")
 
     prompt = Prompts.CLARIFY.invoke({"question": question, "now": now}).text
     messages = [
@@ -78,6 +85,7 @@ class QAAgent:
         self.workflow = self.create_workflow(writing_method)
         self.model = model
         self.data_eng = data_eng
+        self.outline2maxloop = 0
 
 
     async def fc(self, question):
@@ -106,9 +114,9 @@ class QAAgent:
 
         return response
     
-    async def get_useful_info(self, question, retrieved_context):
+    async def get_useful_info(self, question, retrieved_context, quote):
         # 获得有用的信息
-        prompt = Prompts.GEN_USEFUL_INFO.invoke({"retrieved_context": retrieved_context, "question": question, "now": now}).text
+        prompt = Prompts.GEN_USEFUL_INFO.invoke({"retrieved_context": retrieved_context, "question": question, "now": now, "quote":quote}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -126,11 +134,20 @@ class QAAgent:
 
 
     async def retrieve(self, state: GraphState):
+        outline_start_time = datetime.now().strftime(date_format)
+        search_count = state.get("search_count", 0)
+        data_agent_count = state.get("data_agent_count", 0)
         # print("\n=== STEP 1: RETRIEVAL ===")
 
         # 对原始questions进行fc
         question = state["question"]
         fc_querys = await self.fc(question)
+
+        for item in fc_querys:
+            if item['name'] == 'search':
+                search_count += 1
+            elif item['name'] == 'data_agent':
+                data_agent_count += 1
 
         # 定义异步处理函数
         async def process_query(q):
@@ -151,17 +168,26 @@ class QAAgent:
 
         # 获得有用的信息
         retrieved_search_content = "\n---\n".join([r.get("content","")[:4000] for r in result if r.get("type") == "search"])
-        useful_info = await self.get_useful_info(question, retrieved_search_content)
-        useful_info = useful_info + "\n\n" + "\n---\n".join([r.get("content","")[:4000] for r in result if r.get("type") == "index"])
+        retrieved_search_quote = "\n---\n".join([r.get("url","") for r in result if r.get("type") == "search"])
+        useful_info_quote = await self.get_useful_info(question, retrieved_search_content, retrieved_search_quote)
+        #解析得到的{quote, useful_information}
+        try:
+            useful_info_quote = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", useful_info_quote, re.DOTALL)[0])
+        except:
+            console.print("useful_info_quote生成解析失败")
+            log_event("useful_info_quote生成解析失败")
 
-
-        console.print(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {useful_info}")
-        log_event(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n{retrieve_context_lst}\n Useful info:{useful_info}")
+        useful_info = "\n---\n".join([item["useful_information"] for item in useful_info_quote]) + "\n\n" + "\n---\n".join([r.get("content","")[:4000] for r in result if r.get("type") == "index"])
+        useful_quote =[item["quote"] for item in useful_info_quote]
+        unique_quote = str(list(dict.fromkeys(useful_quote)))
+    
+        console.print(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {useful_info}\n Useful quote:{unique_quote}")
+        log_event(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n{retrieve_context_lst}\n Useful info:{useful_info}\n Useful quote:{unique_quote}")
         
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {str([useful_info])}")
+            st.markdown(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {str([useful_info])}\n Useful quote:{unique_quote}")
 
-        return {"retrieved_context": retrieved_context, "useful_information": useful_info}
+        return {"retrieved_context": retrieved_context, "useful_information": useful_info, "useful_quote": useful_quote,"outline_start_time": outline_start_time,"search_count": search_count,  "data_agent_count": data_agent_count}
 
     async def validate_retrieval(self, state: GraphState):
         # print("\n=== STEP 2: VALIDATION ===")
@@ -175,6 +201,7 @@ class QAAgent:
         if loop_count > MAX_LOOP_COUNT:  # 设置最大循环次数为MAX_LOOP_COUNT
             console.print("达到最大重试次数，强制完成")
             log_event("达到最大重试次数，强制完成")
+            self.outline2maxloop = self.outline2maxloop + 1
             return {
                 "router_decision": "COMPLETE",  # 强制完成
                 "retrieved_context": state["retrieved_context"],
@@ -235,6 +262,11 @@ class QAAgent:
         question = state["question"]
         context = state["retrieved_context"]
         useful_information = state['useful_information']
+        useful_quote = state["useful_quote"]
+        outline_start_time = state['outline_start_time']
+        loop_count = state['loop_count']
+        search_count = state["search_count"]
+        data_agent_count = state["data_agent_count"]
 
         prompt = Prompts.ANSWER_QUESTION.invoke({"useful_information": useful_information, "question": question, "now": now}).text
         messages = [
@@ -255,13 +287,21 @@ class QAAgent:
         topic_title = re.findall('请以‘(.*)’为标题', question)[0]
         sec_title = re.findall('，‘(.*)’为子标题', question)[0]
         answer = re.sub(rf"(#*\s*{re.escape(topic_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", answer).strip()
-        answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", answer).strip()
+        answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(sec_title)}\s*\*\*)\s*\n", "", answer).strip()
+
+        #计算该outline的时间
+        parsed_date = datetime.strptime(outline_start_time, date_format)
+        outline_time = datetime.now() - parsed_date
 
         console.print(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
+        unique_quote = str(list(dict.fromkeys(useful_quote)))
+
         log_event(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
         with st.chat_message("assistant"):
             st.markdown(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nfinal_answer: {answer}")
-        
+        log_event(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}\n useful_quote: {unique_quote}")
+        with st.chat_message("assistant"):
+            st.markdown(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}\n useful_quote: {unique_quote}")
         return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question }
 
     async def find_missing_information(self, state: GraphState):
@@ -269,9 +309,17 @@ class QAAgent:
 
         question = state['question']
         missing_information = state["missing_information"]
+        search_count = state["search_count"]
+        data_agent_count = state["data_agent_count"]
+        previously_retrieved_useful_quote = state["useful_quote"]
 
         # 对missing_information进行fc
         fc_querys = await self.fc(missing_information)
+        for item in fc_querys:
+            if item['name'] == 'search':
+                search_count += 1
+            elif item['name'] == 'data_agent':
+                data_agent_count += 1
 
         # 定义异步处理函数
         async def process_query(q):
@@ -294,19 +342,28 @@ class QAAgent:
 
         # 获得新的有用的信息
         newly_retrieved_search_content = "\n---\n".join([r.get("content","")[:4000] for r in tavily_query if r.get("type") == "search"])
-        newly_useful_info = await self.get_useful_info(question, newly_retrieved_search_content)
-        newly_useful_info = newly_useful_info + "\n\n" + "\n---\n".join([r.get("content","")[:4000] for r in tavily_query if r.get("type") == "index"])
+        newly_retrieved_search_quote = "\n---\n".join([r.get("url","") for r in tavily_query if r.get("type") == "search"])
 
+        newly_useful_info_quote = await self.get_useful_info(question, newly_retrieved_search_content,newly_retrieved_search_quote)
+        try:
+            newly_useful_info_quote = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", newly_useful_info_quote, re.DOTALL)[0])
+        except:
+            console.print("useful_info_quote生成解析失败")
+            log_event("useful_info_quote生成解析失败")
 
-        console.print(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {newly_useful_info}")
-        log_event(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n{newly_retrieved_context_lst}\nNewly useful info: {newly_useful_info}")
+        newly_useful_info = "\n---\n".join([item["useful_information"] for item in newly_useful_info_quote]) + "\n\n" + "\n---\n".join([r.get("content","")[:4000] for r in tavily_query if r.get("type") == "index"])
+        useful_quote = previously_retrieved_useful_quote + [item["quote"] for item in newly_useful_info_quote]
+        unique_newly_quote = str(list(dict.fromkeys([item["quote"] for item in newly_useful_info_quote])))
+
+        console.print(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {newly_useful_info}\nNewly useful quote: {unique_newly_quote}")
+        log_event(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n{newly_retrieved_context_lst}\nNewly useful info: {newly_useful_info}\nNewly useful quote: {unique_newly_quote}")
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {str([newly_useful_info])}")
+            st.markdown(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {str([newly_useful_info])}Newly useful quote: {unique_newly_quote}")
 
 
         combined_context = f"{previously_retrieved_useful_information}\n--\n{newly_useful_info}"
         # print("newly retrieved context:", newly_retrieved_context)
-        return {"useful_information": combined_context}
+        return {"useful_information": combined_context,"search_count": search_count,  "data_agent_count": data_agent_count, "useful_quote":useful_quote}
 
     @staticmethod
     def decide_route(state: GraphState):
@@ -462,7 +519,7 @@ class QAAgent:
             topic_title = re.findall('请以‘(.*)’为标题', sec_question)[0]
             sec_title = re.findall('，‘(.*)’为子标题', sec_question)[0]
             t_answer = re.sub(rf"(#*\s*{re.escape(topic_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", t_answer).strip()
-            t_answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(topic_title)}\s*\*\*)\s*\n", "", t_answer).strip()
+            t_answer = re.sub(rf"(#*\s*{re.escape(sec_title)}|\*\*\s*{re.escape(sec_title)}\s*\*\*)\s*\n", "", t_answer).strip()
 
             serial_results_lsts.append(t_answer)
             already_writing = already_writing + f"# {outline['headings']}\n{t_answer}\n\n"
@@ -524,6 +581,7 @@ class QAAgent:
         global MAX_LOOP_COUNT
         MAX_LOOP_COUNT = max_loop
 
+        self.outline2maxloop = 0
         # Combine information
         combined_query = f"""
         Initial Query: {question}
@@ -568,6 +626,9 @@ class QAAgent:
             final_report = await self.serial(question, outlines, results)
             # self.mermaid(final_report, add_str="SERIAL")
         
+        with st.chat_message("assistant"):
+            st.markdown(f"{self.outline2maxloop}个outline达到了最大循环次数")
+        log_event(f"{self.outline2maxloop}个outline达到了最大循环次数")
         # 添加一个结论
         conclusion = await self.conclusion(question, final_report)
         with st.chat_message("assistant"):
@@ -590,7 +651,8 @@ class QAAgent:
         st.success(f"Generation takes {end_time - start_time} seconds.")
         # Save report
         os.makedirs("output", exist_ok=True)
-        with open(f"output/{question}_{start_time.strftime('%Y%m%d%H%M%S')}.md", "w") as f:
+        log_file_name = question[:max_log_file_length]
+        with open(f"output/{log_file_name}_{start_time.strftime('%Y%m%d%H%M%S')}.md", "w") as f:
             f.write(final_report)
         
 

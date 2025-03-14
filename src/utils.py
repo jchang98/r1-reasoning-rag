@@ -43,3 +43,57 @@ async def async_parallel_process(items, process_func):
     
     return await asyncio.gather(*tasks)
 
+from collections import defaultdict
+import re
+import streamlit as st
+#读取目录下所有文件名，用问题名-时间进行排列
+def parse_file_names(file_names):
+    problems = defaultdict(list)
+    for file_name in file_names:
+        parts = file_name.split('_')
+        if len(parts) == 2:
+            problem, time = parts[0], parts[1].split('.')[0]
+            problem = problem[5:]
+            problems[problem].append(time)
+    return problems
+
+# 打印日志文件。 1.删除检索的原始信息；2.根据步骤进行划线
+def show_hist_log(show_file):
+    show_file = f"logs/{show_file}.log"
+    try:
+        with open(show_file, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+            #Newly retrieved context: \n{newly_retrieved_context_lst}\nNewly useful info: {newly_useful_info
+            pattern = r"Newly retrieved context: \n.*?\nNewly useful info:"
+            content = re.sub(pattern, "Newly useful info:", content)
+
+            #\nRetrieved Context: \n{retrieve_context_lst}\n Useful info:{useful_info}
+            pattern = r"Retrieved Context: \n.*?\n Useful info:"
+            content = re.sub(pattern, "Useful info:", content)
+
+            content = content.replace("---", "")
+            content = content.replace("\n", "\n\n")
+            
+
+            index = content.find("- INFO - Event")
+            pattern = content[:index]
+            pattern =   r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}"+pattern[23:]
+            blocks = re.split(pattern, content)
+            blocks = [block.strip() for block in blocks if block.strip()]
+
+            with st.chat_message("assistant"):
+                st.write("查找记录中--------")
+                for block in blocks:
+                    st.divider()
+                    st.write(block)
+    except FileNotFoundError:
+        with st.chat_message("assistant"):
+            content = f"记录 {show_file} 未找到。"
+            st.markdown(content)
+        return
+    except Exception as e:
+        with st.chat_message("assistant"):
+            content = f"读取记录 {show_file} 时出错: {e}"
+            st.markdown(content)
+        return

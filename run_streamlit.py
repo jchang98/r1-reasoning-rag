@@ -3,6 +3,9 @@ import subprocess
 import asyncio
 from datetime import datetime
 from src.agent import QAAgent, get_feedback
+from src.utils import show_hist_log, parse_file_names
+import os
+import glob
 
 st.set_page_config(layout="wide")
 st.title('📖 Hithink Deep Research V3')
@@ -52,6 +55,37 @@ def main():
     if clear:
         user_input =  ""
         clean()
+
+
+    #查找历史
+    files = glob.glob(os.path.join(f"logs", '*')) 
+    problems = parse_file_names(files)
+
+    if 'selected_problem' not in st.session_state:
+        st.session_state.selected_problem = None
+    if 'selected_time' not in st.session_state:
+        st.session_state.selected_time = None
+
+    st.sidebar.selectbox(
+        "问题记录",
+        options=[""] + list(problems.keys()),  
+        key="selected_problem",
+        on_change=lambda: st.session_state.update(selected_time=None)  
+    )
+
+    if st.session_state.selected_problem:
+        st.sidebar.selectbox(
+            "问题时间",
+            options=[""] + problems[st.session_state.selected_problem],  # 添加空字符串作为默认选项
+            key="selected_time"
+    )
+    show_history = st.sidebar.button("查询历史")
+    if show_history:
+        #print(st.session_state.selected_problem+st.session_state.selected_time)
+        show_hist_log(show_file=f"{st.session_state.selected_problem}_{st.session_state.selected_time}")
+
+
+
 
     user_input = st.chat_input("Enter a question:")
 
