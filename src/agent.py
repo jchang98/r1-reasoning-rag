@@ -31,12 +31,12 @@ max_log_file_length = 100
 class GraphState(TypedDict):
     question: str
     fc_querys: list
-    retrieved_context: str
+    retrieved_context: list[str]
     router_decision: str
     answer_to_question: str
     missing_information: str
-    reasoning: str
-    useful_information: str
+    reasoning: list[str]
+    useful_information: list[str]
     loop_count: int
 
     useful_quote:list[str]
@@ -114,9 +114,9 @@ class QAAgent:
 
         return response
     
-    async def get_useful_info(self, question, retrieved_context, quote):
+    async def get_useful_info(self, question, retrieved_context):
         # 获得有用的信息
-        prompt = Prompts.GEN_USEFUL_INFO.invoke({"retrieved_context": retrieved_context, "question": question, "now": now, "quote":quote}).text
+        prompt = Prompts.GEN_USEFUL_INFO.invoke({"retrieved_context": retrieved_context, "question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -163,31 +163,46 @@ class QAAgent:
         result = await async_parallel_process(fc_querys, process_query)
         
         result = list(itertools.chain.from_iterable(result))
-        retrieved_context = "\n---\n".join([r.get("content","") for r in result])
-        retrieve_context_lst = str([r.get("content","") for r in result])
+        retrieved_context = []
+        for r in result:
+            retrieved_context.append({
+                "type": r.get("type", ""),
+                "content": r.get('content', '')[:4000],
+                "url": r.get('url', ''),
+            })
 
-        # 获得有用的信息
-        retrieved_search_content = "\n---\n".join([r.get("content","")[:4000] for r in result if r.get("type") == "search"])
-        retrieved_search_quote = "\n---\n".join([r.get("url","") for r in result if r.get("type") == "search"])
-        useful_info_quote = await self.get_useful_info(question, retrieved_search_content, retrieved_search_quote)
-        #解析得到的{quote, useful_information}
+        # 获得搜索的有用的信息
+        retrieved_search_content = ""
+        idx = 0
+        for r in result:
+            if r.get("type") == "search":
+                web_page_content = r.get('content', '')[:4000]
+                retrieved_search_content += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
+                idx += 1
+
+        search_useful_info = await self.get_useful_info(question, retrieved_search_content)
+        #解析得到的{url, useful_information}
         try:
-            useful_info_quote = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", useful_info_quote, re.DOTALL)[0])
+            search_useful_info = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", search_useful_info, re.DOTALL)[0])
         except:
-            console.print("useful_info_quote生成解析失败")
-            log_event("useful_info_quote生成解析失败")
+            console.print("search_useful_info 生成解析失败")
+            log_event("search_useful_info 生成解析失败")
 
-        useful_info = "\n---\n".join([item["useful_information"] for item in useful_info_quote]) + "\n\n" + "\n---\n".join([r.get("content","")[:4000] for r in result if r.get("type") == "index"])
-        useful_quote =[item["quote"] for item in useful_info_quote]
-        unique_quote = str(list(dict.fromkeys(useful_quote)))
+        # 把搜索的有用信息 和 数据的进行合并成useful info 
+        useful_info = []
+        for item in search_useful_info:
+            useful_info.append({"url": item["url"], "content": item["useful_information"][:4000]})
+        for item in result:
+            if item.get("type") == "index":
+                useful_info.append({"url": item.get("url", ""), "content": item.get("content", "")[:4000]})
     
-        console.print(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {useful_info}\n Useful quote:{unique_quote}")
-        log_event(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n{retrieve_context_lst}\n Useful info:{useful_info}\n Useful quote:{unique_quote}")
+        console.print(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {str(useful_info)}")
+        log_event(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n{str(retrieved_context)}\n Useful info:{str(useful_info)}")
         
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {str([useful_info])}\n Useful quote:{unique_quote}")
+            st.markdown(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {str(useful_info)}")
 
-        return {"retrieved_context": retrieved_context, "useful_information": useful_info, "useful_quote": useful_quote,"outline_start_time": outline_start_time,"search_count": search_count,  "data_agent_count": data_agent_count}
+        return {"retrieved_context": retrieved_context, "useful_information": useful_info, "outline_start_time": outline_start_time,"search_count": search_count,  "data_agent_count": data_agent_count}
 
     async def validate_retrieval(self, state: GraphState):
         # print("\n=== STEP 2: VALIDATION ===")
@@ -195,6 +210,7 @@ class QAAgent:
         question = state["question"]
         retrieved_context = state["retrieved_context"]
         useful_information = state['useful_information']
+        reasoning = state.get('reasoning',[])
 
         # 从state中获取循环计数，如果没有则初始化为1
         loop_count = state.get("loop_count", 1)
@@ -205,14 +221,18 @@ class QAAgent:
             return {
                 "router_decision": "COMPLETE",  # 强制完成
                 "retrieved_context": state["retrieved_context"],
-                "useful_information": state.get("useful_information",""),
+                "useful_information": state.get("useful_information",[]),
                 "missing_information": state.get("missing_information",""),
-                "reasoning": state.get("reasoning",""),
+                "reasoning": state.get("reasoning",[]),
                 "loop_count": loop_count+1
             }
 
+        useful_information_str = ""
+        for idx, r in enumerate(useful_information):
+            web_page_content = r.get('content', '')[:4000]
+            useful_information_str += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
 
-        prompt = Prompts.VALIDATE_RETRIEVAL.invoke({"useful_information": useful_information, "question": question, "now": now}).text
+        prompt = Prompts.VALIDATE_RETRIEVAL.invoke({"useful_information": useful_information_str, "question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -224,9 +244,11 @@ class QAAgent:
                 model="ep-20250208165153-wn9ft", messages=messages
             )
         
-        reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        cur_reasoning = llm_output.choices[0].message.reasoning_content.strip()
         response = llm_output.choices[0].message.content.strip()
         # print("reasoning:", reasoning)
+
+        reasoning.append(cur_reasoning)
         try:
             strcutured_response = json.loads(response)
         except:
@@ -251,8 +273,8 @@ class QAAgent:
         useful_information = state['useful_information']
         answer = ""
     
-        console.print(f"\n=== STEP 3: NO ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
-        log_event(f"\n=== STEP 3: NO ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
+        console.print(f"\n=== STEP 3: NO ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information)}\nfinal_answer: {answer}")
+        log_event(f"\n=== STEP 3: NO ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information)}\nfinal_answer: {answer}")
 
         return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question }
 
@@ -262,13 +284,18 @@ class QAAgent:
         question = state["question"]
         context = state["retrieved_context"]
         useful_information = state['useful_information']
-        useful_quote = state["useful_quote"]
         outline_start_time = state['outline_start_time']
         loop_count = state['loop_count']
         search_count = state["search_count"]
         data_agent_count = state["data_agent_count"]
+        validate_reasoning = state['reasoning']
 
-        prompt = Prompts.ANSWER_QUESTION.invoke({"useful_information": useful_information, "question": question, "now": now}).text
+
+        useful_information_str = ""
+        for idx, r in enumerate(useful_information):
+            web_page_content = r.get('content', '')[:4000]
+            useful_information_str += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
+        prompt = Prompts.ANSWER_QUESTION.invoke({"useful_information": useful_information_str, "question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -293,15 +320,15 @@ class QAAgent:
         parsed_date = datetime.strptime(outline_start_time, date_format)
         outline_time = datetime.now() - parsed_date
 
-        console.print(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
-        unique_quote = str(list(dict.fromkeys(useful_quote)))
+        console.print(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information_str)}\nfinal_answer: {answer}")
+        log_event(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information_str)}\nfinal_answer: {answer}")
+        with st.chat_message("assistant"):
+            st.markdown(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information_str)}\nfinal_answer: {answer}")
 
-        log_event(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{useful_information}\nfinal_answer: {answer}")
+
+        log_event(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}")
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nfinal_answer: {answer}")
-        log_event(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}\n useful_quote: {unique_quote}")
-        with st.chat_message("assistant"):
-            st.markdown(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}\n useful_quote: {unique_quote}")
+            st.markdown(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}")
         return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question }
 
     async def find_missing_information(self, state: GraphState):
@@ -311,7 +338,6 @@ class QAAgent:
         missing_information = state["missing_information"]
         search_count = state["search_count"]
         data_agent_count = state["data_agent_count"]
-        previously_retrieved_useful_quote = state["useful_quote"]
 
         # 对missing_information进行fc
         fc_querys = await self.fc(missing_information)
@@ -332,38 +358,59 @@ class QAAgent:
                     return await self.data_client.ifind_data_agent(q["question"])
 
         # 使用异步并行处理
-        tavily_query = await async_parallel_process(fc_querys, process_query)
+        new_results = await async_parallel_process(fc_querys, process_query)
         
-        tavily_query = list(itertools.chain.from_iterable(tavily_query))
+        new_results = list(itertools.chain.from_iterable(new_results))
         previously_retrieved_useful_information = state["useful_information"]
 
-        newly_retrieved_context = "\n---\n".join([r.get("content","") for r in tavily_query])
-        newly_retrieved_context_lst = str([r.get("content","") for r in tavily_query])
 
-        # 获得新的有用的信息
-        newly_retrieved_search_content = "\n---\n".join([r.get("content","")[:4000] for r in tavily_query if r.get("type") == "search"])
-        newly_retrieved_search_quote = "\n---\n".join([r.get("url","") for r in tavily_query if r.get("type") == "search"])
+        # 获得所有的新信息
+        new_retrieved_context = []
+        for r in new_results:
+            new_retrieved_context.append({
+                "type": r.get("type", ""),
+                "content": r.get('content', '')[:4000],
+                "url": r.get('url', ''),
+            })
 
-        newly_useful_info_quote = await self.get_useful_info(question, newly_retrieved_search_content,newly_retrieved_search_quote)
+        # 获得新搜索的有用的信息
+        new_retrieved_search_content = ""
+        idx = 0
+        for r in new_results:
+            if r.get("type") == "search":
+                web_page_content = r.get('content', '')[:4000]
+                new_retrieved_search_content += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
+                idx += 1
+
+        new_search_useful_info = await self.get_useful_info(question, new_retrieved_search_content)
+        #解析得到的{url, useful_information}
         try:
-            newly_useful_info_quote = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", newly_useful_info_quote, re.DOTALL)[0])
+            new_search_useful_info = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", new_search_useful_info, re.DOTALL)[0])
         except:
-            console.print("useful_info_quote生成解析失败")
-            log_event("useful_info_quote生成解析失败")
+            console.print("new_search_useful_info 生成解析失败")
+            log_event("new_search_useful_info 生成解析失败")
 
-        newly_useful_info = "\n---\n".join([item["useful_information"] for item in newly_useful_info_quote]) + "\n\n" + "\n---\n".join([r.get("content","")[:4000] for r in tavily_query if r.get("type") == "index"])
-        useful_quote = previously_retrieved_useful_quote + [item["quote"] for item in newly_useful_info_quote]
-        unique_newly_quote = str(list(dict.fromkeys([item["quote"] for item in newly_useful_info_quote])))
+        # 把新搜索的有用信息 和 新数据的进行合并成new useful info 
+        new_useful_info = []
+        for item in new_search_useful_info:
+            new_useful_info.append({"url": item["url"], "content": item["useful_information"][:4000]})
+        for item in new_results:
+            if item.get("type") == "index":
+                new_useful_info.append({"url": item.get("url", ""), "content": item.get("content", "")[:4000]})
 
-        console.print(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {newly_useful_info}\nNewly useful quote: {unique_newly_quote}")
-        log_event(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n{newly_retrieved_context_lst}\nNewly useful info: {newly_useful_info}\nNewly useful quote: {unique_newly_quote}")
+
+        newly_retrieved_context_lst = str(new_results)
+        newly_useful_info = str(new_useful_info)
+
+        console.print(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {newly_useful_info}")
+        log_event(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n{newly_retrieved_context_lst}\nNewly useful info: {newly_useful_info}")
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {str([newly_useful_info])}Newly useful quote: {unique_newly_quote}")
+            st.markdown(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {str([newly_useful_info])}")
 
 
-        combined_context = f"{previously_retrieved_useful_information}\n--\n{newly_useful_info}"
+        combined_context = previously_retrieved_useful_information + new_useful_info
         # print("newly retrieved context:", newly_retrieved_context)
-        return {"useful_information": combined_context,"search_count": search_count,  "data_agent_count": data_agent_count, "useful_quote":useful_quote}
+        return {"useful_information": combined_context,"search_count": search_count,  "data_agent_count": data_agent_count}
 
     @staticmethod
     def decide_route(state: GraphState):
@@ -500,7 +547,13 @@ class QAAgent:
 
             useful_information = report['useful_information']
             sec_question = report['question']
-            prompt = Prompts.ANSWER_QUESTION_SERIAL.invoke({"useful_information": useful_information, "question": sec_question, "already_writing": already_writing, "now": now}).text
+            useful_information_str = ""
+            for idx, r in enumerate(useful_information):
+                web_page_content = r.get('content', '')[:4000]
+                useful_information_str += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
+
+
+            prompt = Prompts.ANSWER_QUESTION_SERIAL.invoke({"useful_information": useful_information_str,           "question": sec_question, "already_writing": already_writing, "now": now}).text
             messages = [
                 {"role": "user", "content": prompt}
             ]
@@ -528,11 +581,11 @@ class QAAgent:
             # already_writing = already_writing + f"{t_answer}\n\n"
             # sec_serial_final_result = t_answer
             with st.chat_message("assistant"):
-                st.markdown(f"==== SERIAL REPORT CONTINUE ====\n{sec_serial_final_result}")
+                st.markdown(f"==== SERIAL REPORT CONTINUE ====\nuseful info:{useful_information_str}\nsection serial report:{sec_serial_final_result}")
 
 
-        console.print(f"\n==== SERIAL REPORT ====\n{already_writing}")
-        log_event(f"\n==== SERIAL REPORT  ====\n{already_writing}")
+            console.print(f"==== SERIAL REPORT CONTINUE ====\nuseful info:{useful_information_str}\nsection serial report:{sec_serial_final_result}")
+            log_event(f"==== SERIAL REPORT CONTINUE ====\nuseful info:{useful_information_str}\nsection serial report:{sec_serial_final_result}")
         return already_writing
 
 

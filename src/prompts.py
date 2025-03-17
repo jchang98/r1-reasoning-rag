@@ -94,15 +94,14 @@ class Prompts:
     )
 
     GEN_USEFUL_INFO = PromptTemplate(
-        input_variables=["retrieved_context","quote", "question", "now"],
+        input_variables=["retrieved_context", "question", "now"],
         template="""
     You are a useful information generator agent.  Today is {now}.  
-    You will be provided with a question, chunks of text that may or may not contain the answer to the question, and the corresponding citations for each chunk of text.  Your role is to carefully review the chunks of text and extract the useful information from the retrieved chunks.  Additionally, you must provide the corresponding citations for the useful information.  
-    The order of the text chunks called "context" and the order of the citations called "quote" are aligned. They are both divided by \n---\n.
+    You will be provided with a question, chunks of text that may or may not contain the answer to the question, and the corresponding citations for each chunk of text.  Your role is to carefully review the chunks of text and extract the useful information from the retrieved chunks.  Additionally, you must provide the corresponding citations(webpage url) for the useful information.  
     
     Here are the requirements:
-    - Remember, you must return both useful information and citations.  Retain the original citations.
-    - If there is no useful information, set this to an empty string.
+    - Remember, you must return both useful information and citations. Retain the original citations.
+    - If there is no useful information, set this to an empty json list.
     - Please retain the information subject in the original information, as well as digital information, news policy information, reported news, etc.
     - Please retain the information that you don't know.
     - Return the useful information in an extremely detailed version, and return the additional context (if relevant).
@@ -113,27 +112,22 @@ class Prompts:
     Please response in the following format, returns a json list:
         ```json
         [
-        {{'useful_information': 'xxx', 'quote': 'xxx'}},
-        {{'useful_information': 'xxx', 'quote': 'xxx'}},
+        {{'useful_information': 'xxx', 'url': 'xxx'}},
+        {{'useful_information': 'xxx', 'url': 'xxx'}},
         ...
         ]
         ```
-    Here is an example of input:
-    Context:"The capital city of Mexico is Mexico City."\n---\n"Beijing Municipality achieved a regional gross domestic product (GDP) of 4,984.31 billion yuan."
-    Quote:'https://simple.wikipedia.org/wiki/Mexico_City'\n---\n'https://baike.baidu.com/item/%e5%8c%97%e4%ba%ac%e5%b8%82/126069'
-    The Question: "What is the capital city of Mexico?"
 
     Here is an example of the response format:
         
         ```json
         [
-        {{'useful_information': '"The capital city of Mexico is Mexico City."', 'quote': 'https://simple.wikipedia.org/wiki/Mexico_City'}},
+        {{'useful_information': '"The capital city of Mexico is Mexico City..."', 'url': 'https://simple.wikipedia.org/wiki/Mexico_City'}},
         ...
         ]
         ```
 
     Context: {retrieved_context}
-    Quote:{quote}
     The Question: {question}
     Useful Information:"""
     )
@@ -182,7 +176,9 @@ class Prompts:
         4. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
         5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
         6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
-        7. Do not include any other text than the paragraph content. please response in chinese.
+        7. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic.
+        8. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
+        9. Do not include any other text than the paragraph content. please response in chinese.
         
         Context: {useful_information}
 
@@ -205,7 +201,9 @@ class Prompts:
         5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
         6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
         7. Maintain narrative consistency with previously written sections while avoiding content duplication. Ensure smooth transitions between sections.
-        8. Do not include any other text than the paragraph content. please response in chinese.
+        8. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic.
+        9. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
+        10. Do not include any other text than the paragraph content. please response in chinese.
         
         Context: {useful_information}
 

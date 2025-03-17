@@ -38,8 +38,9 @@ class DataClient:
         params = {"query":query}
 
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(url, data=params, headers=headers)
+            # async with httpx.AsyncClient() as client:
+            #     response = await client.post(url, data=params, headers=headers)
+            response = requests.post(url, data=params, headers=headers)
             sources = json.loads(
                 response.json()['data']['query_data']['condition']
             )['datas']
@@ -70,7 +71,8 @@ class DataClient:
                                 "table": df_str,
                                 "description": description,
                                 "content": content,
-                                "type": "index"
+                                "type": "index",
+                                "url": tb_info.get("url","")[:150]
                             })
                     except Exception as e:
                         print(f"ifind_data: parser error:{e}")
@@ -100,7 +102,7 @@ class DataClient:
             # 将agent.answer中的var和 Type 删除掉
             final_res = re.sub(r"\nVar: \<result\_\d*\>; Type: \<class .*\>;", "", agent.answer)
             final_res = re.sub(r"result\_\d*", "", final_res)
-            return [{"content": final_res, "type": "index"}]
+            return [{"content": final_res, "type": "index", "url": ""}]
         except Exception as e:
             print(f"ifind_data_agent: requests error:{e}")
             return []

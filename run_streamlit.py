@@ -59,7 +59,7 @@ def main():
 
     #查找历史
     files = glob.glob(os.path.join(f"logs", '*')) 
-    problems = parse_file_names(files)
+    problems, times = parse_file_names(files)
 
     if 'selected_problem' not in st.session_state:
         st.session_state.selected_problem = None
@@ -67,22 +67,22 @@ def main():
         st.session_state.selected_time = None
 
     st.sidebar.selectbox(
-        "问题记录",
-        options=[""] + list(problems.keys()),  
-        key="selected_problem",
-        on_change=lambda: st.session_state.update(selected_time=None)  
+        "问题时间",
+        options=[""] + list(times.keys()),  
+        key="selected_time",
+        on_change=lambda: st.session_state.update(selected_promblem=None)  
     )
 
-    if st.session_state.selected_problem:
+    if st.session_state.selected_time:
         st.sidebar.selectbox(
-            "问题时间",
-            options=[""] + problems[st.session_state.selected_problem],  # 添加空字符串作为默认选项
-            key="selected_time"
+            "问题记录",
+            options=[""] + times[st.session_state.selected_time],  # 添加空字符串作为默认选项
+            key="selected_promblem"
     )
     show_history = st.sidebar.button("查询历史")
     if show_history:
         #print(st.session_state.selected_problem+st.session_state.selected_time)
-        show_hist_log(show_file=f"{st.session_state.selected_problem}_{st.session_state.selected_time}")
+        show_hist_log(show_file=f"{st.session_state.selected_promblem}")
 
 
 
