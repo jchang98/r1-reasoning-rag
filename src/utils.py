@@ -1,9 +1,27 @@
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from rich.console import Console
 import asyncio
+import networkx as nx
+import os
 
 
 console = Console()
+    
+
+def remove_if_exist(file):
+    if os.path.exists(file):
+        os.remove(file)
+
+def write_json(json_obj, file_name):
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(json_obj, f, indent=2, ensure_ascii=False)
+
+
+def load_json(file_name):
+    if not os.path.exists(file_name):
+        return None
+    with open(file_name, encoding="utf-8") as f:
+        return json.load(f)
 
 def parallel_process(lst, process_element, use_threads=True, max_workers=None):
     """

@@ -1,0 +1,785 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d7" for="edge" attr.name="order" attr.type="long" />
+  <key id="d6" for="edge" attr.name="source_id" attr.type="string" />
+  <key id="d5" for="edge" attr.name="description" attr.type="string" />
+  <key id="d4" for="edge" attr.name="weight" attr.type="double" />
+  <key id="d3" for="node" attr.name="clusters" attr.type="string" />
+  <key id="d2" for="node" attr.name="source_id" attr.type="string" />
+  <key id="d1" for="node" attr.name="description" attr.type="string" />
+  <key id="d0" for="node" attr.name="entity_type" attr.type="string" />
+  <graph edgedefault="undirected">
+    <node id="&quot;全球经济&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"全球经济指的是全球范围内国家和地区的经济状况和发展趋势。在2025年，全球经济复苏的不确定性仍然存在。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d3">[{"level": 0, "cluster": 2}]</data>
+    </node>
+    <node id="&quot;央行&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"央行指的是各国的中央银行，负责国家的货币政策和金融稳定，在2025年继续增加黄金储备以提升金融安全。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d3">[{"level": 0, "cluster": 2}]</data>
+    </node>
+    <node id="&quot;黄金&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"黄金在2024年和2025年作为避险资产和对抗货币贬值的工具，其需求和价格都呈现出历史新高。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d3">[{"level": 0, "cluster": 2}]</data>
+    </node>
+    <node id="&quot;中国黄金市场&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"2023年中国黄金消费量大幅增长，但2024年因金价上涨导致购买量有所下降，显示出市场的波动性。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d3">[{"level": 0, "cluster": 2}]</data>
+    </node>
+    <node id="&quot;黄金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"黄金ETF及其类似产品在2024年的持仓量稳定，投资者通过这些工具灵活调整投资组合。"&lt;SEP&gt;"黄金ETF是一种金融工具，通过追踪黄金的市场表现，提供投资者一种投资黄金的途径。"&lt;SEP&gt;"黄金ETF是基金通过投资黄金合约而创建的金融产品，旨在追求与基础指数表现一致的收益。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1&lt;SEP&gt;chunk-25c925213fc11c82831ec819b5e4122f&lt;SEP&gt;chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d3">[{"level": 0, "cluster": 1}]</data>
+    </node>
+    <node id="&quot;通货膨胀&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"通货膨胀是指商品和服务价格的普遍上涨，在全球经济中推高了对黄金作为避险资产的需求。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d3">[{"level": 0, "cluster": 2}]</data>
+    </node>
+    <node id="&quot;金矿产量&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"金矿产量是指每年从矿山开采的黄金总量，2024年达到3661.2吨，为整体黄金供给作出了贡献。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+    </node>
+    <node id="&quot;回收金&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"回收金是指通过回收旧金制品恢复的黄金，2024年增长11%至1370吨。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+    </node>
+    <node id="&quot;新兴市场国家&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"新兴市场国家通过增持黄金以分散外汇储备风险，这种策略影响了全球黄金需求和价格。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d3">[{"level": 0, "cluster": 2}]</data>
+    </node>
+    <node id="&quot;美联储&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"美联储是美国的中央银行，其紧缩政策可能导致美元走强，影响黄金价格和全球经济环境。"&lt;SEP&gt;"美联储（美国联邦储备系统）负责美国的货币政策，其利率政策对黄金价格产生影响。"&lt;SEP&gt;"美联储，即美国联邦储备系统，是美国的中央银行，负责制定货币政策，包括利率的调整，其决策对全球金融市场有重要影响。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f&lt;SEP&gt;chunk-7e17b7f989729387d522af9979154347&lt;SEP&gt;chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d3">[{"level": 0, "cluster": 2}]</data>
+    </node>
+    <node id="&quot;人工智能&quot;">
+      <data key="d0">"TECHNOLOGY"</data>
+      <data key="d1">"人工智能作为科技领域黄金的应用之一，推动了对科技用金的需求增加。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+    </node>
+    <node id="&quot;科技用金&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"科技用金指的是在科技产业中使用的黄金材料，2024年同比增长21吨（+7%）。"</data>
+      <data key="d2">chunk-25c925213fc11c82831ec819b5e4122f</data>
+    </node>
+    <node id="&quot;华安黄金易(ETF)&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"华安黄金易(etf)是一个基金产品，代码为518880.SH，其数据显示了该基金在指定时间段内的表现。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;黄金ETF基金&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"黄金etf基金是一种基金产品，代码为518660.SH，其历史数据包括一段指定时间内的收益和波动率。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;华夏黄金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"华夏黄金etf是一个基金产品，代码为518850.SH，该基金的历史数据包括收益和波动率信息。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;建信上海金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"建信上海金etf是一个基金产品，代码为518860.SH，基金数据包括多年的历史表现。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;易方达黄金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"易方达黄金etf是一个基金产品，代码为159934.SZ，该基金在过去几年内的表现指标包括收益与波动率。"&lt;SEP&gt;"易方达黄金etf是一只黄金ETF，努力追求最小化跟踪偏离和误差，以密切跟踪市场基准。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2&lt;SEP&gt;chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;博时黄金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"博时黄金etf是一个基金产品，代码为159937.SZ，其历史数据涵盖一个十年期间。"&lt;SEP&gt;"博时黄金etf是一只ETF基金，专注于通过黄金现货合约来提供与标的指数表现接近的投资回报。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2&lt;SEP&gt;chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;美国:美元指数&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"美国:美元指数反映了美国美元相较于一篮子主要货币的价值指标，其数值随时间波动。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;CPI:当月同比&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"CPI:当月同比是一个反映通货膨胀率的经济指标，表示与去年同期相比的变化率。"</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;20250319&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"20250319 is a specific date representing the data snapshot for various gold ETFs."</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;20150320-20250319&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"20150320-20250319 indicates a time range of ten years during which historical data of gold ETFs are recorded."</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;基金代码&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"基金代码 refers to the specific identifier allocated to various financial products or funds, used for trading and disclosure purposes."</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;基金简称&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"基金简称 is the abbreviated name of a fund, making it easier for investors and traders to recognize and refer to the fund."</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;基金扩位简称&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"基金扩位简称 is the extended name or description of a fund, providing more detailed information about the product."</data>
+      <data key="d2">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+    </node>
+    <node id="&quot;金融市场&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"金融市场涉及资产价格波动和风险评估，影响投资策略和经济决策。"</data>
+      <data key="d2">chunk-17a8aea60d57caaac33e063547685e8a</data>
+    </node>
+    <node id="&quot;QUANTITATIVE INVESTMENT&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"Quantitative investment refers to investment strategies that use mathematical models and algorithms to identify market inefficiencies and optimize portfolios."</data>
+      <data key="d2">chunk-17a8aea60d57caaac33e063547685e8a</data>
+    </node>
+    <node id="&quot;银华新能源新材料量化股票发起式C&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"银华新能源新材料量化股票发起式c为中高风险的基金，主要涉及新能源和新材料领域的量化股票投资。"</data>
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+    </node>
+    <node id="&quot;华夏中证全指公用事业ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"华夏中证全指公用事业ETF是一种行业指数ETF，主要投资于公用事业领域，并在深证市场交易。"</data>
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+    </node>
+    <node id="&quot;广发国证通信ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"广发国证通信ETF为行业指数ETF，聚焦于通信领域的股票投资，具有跨市场ETF的特征。"</data>
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+    </node>
+    <node id="&quot;南方中证通信服务ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"南方中证通信服务ETF是一种投资于通信服务领域的ETF，参与跨市场交易，并具备场内非货币型ETF特点。"</data>
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d3">[{"level": 0, "cluster": 3}]</data>
+    </node>
+    <node id="&quot;华夏基金&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"华夏基金是管理华夏中证全指公用事业ETF的基金公司，提供基金管理和相关服务。"</data>
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+    </node>
+    <node id="&quot;广发基金&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"广发基金作为广发国证通信ETF的基金管理人，负责基金的运营和管理。"&lt;SEP&gt;"广发基金是一家基金管理公司，管理多种ETF产品，如广发国证信创ETF。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347&lt;SEP&gt;chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+    </node>
+    <node id="&quot;南方基金&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"南方基金是一家基金管理公司，提供多种类型的基金产品，涉及股票型和指数型基金。"&lt;SEP&gt;"南方基金是南方中证通信服务ETF的管理公司，提供基金管理和投资服务。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347&lt;SEP&gt;chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d3">[{"level": 0, "cluster": 3}]</data>
+    </node>
+    <node id="&quot;20250318&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"20250318是多个基金最新净值日期，标记了这些基金在此日期的市场表现在基金相关文件中的记录。"</data>
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+    </node>
+    <node id="&quot;20241231&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"20241231是基金运作相关的一个日期，代表某些基金报告的截止日期或到期日。"</data>
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+    </node>
+    <node id="&quot;工银瑞信基金&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"工银瑞信基金是一家基金管理公司，管理多种ETF产品，如工银瑞信中证消费龙头ETF。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347</data>
+    </node>
+    <node id="&quot;大盘平衡型&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"大盘平衡型代表了一种基金类别，通常涉及对多种股票和资产进行平衡配置。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d3">[{"level": 0, "cluster": 3}]</data>
+    </node>
+    <node id="&quot;黄金价格&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"黄金价格受到全球货币政策、央行购金活动和地缘政治因素的影响，自1971年来经历了显著增长。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d3">[{"level": 0, "cluster": 3}]</data>
+    </node>
+    <node id="&quot;华安基金&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"华安基金是一家基金管理公司，通过分析框架研究黄金定价受多种因素的影响，如货币政策和地缘政治因素。"&lt;SEP&gt;"华安基金管理有限公司是一家基金管理公司，提供投资建议，强调关注一些影响黄金市场的因素。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347&lt;SEP&gt;chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d3">[{"level": 0, "cluster": 3}]</data>
+    </node>
+    <node id="&quot;美元&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"美元是美国的法定货币，其价值变动会影响黄金的市场表现，尤其在外汇储备中占比变化时。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347</data>
+    </node>
+    <node id="&quot;COMEX&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"COMEX是商品交易所，提供黄金期货交易，其数据如非商业净多头持仓可以反映市场情绪和投资者的交易行为。"&lt;SEP&gt;"COMEX是纽约商品交易所的一个分部，主要进行黄金期货和期权交易，其持仓量影响黄金市场动态。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347&lt;SEP&gt;chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d3">[{"level": 0, "cluster": 0}]</data>
+    </node>
+    <node id="&quot;中国&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"中国是一个全球大国，其央行的黄金储备变化对国际黄金市场形成长期影响。"&lt;SEP&gt;"中国是一个国家，其央行在不断增持黄金储备，以此作为支撑其货币和经济的一种策略。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347&lt;SEP&gt;chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d3">[{"level": 0, "cluster": 0}]</data>
+    </node>
+    <node id="&quot;俄罗斯&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"俄罗斯是一个全球大国，其央行的黄金购买活动对国际黄金市场产生长期支撑。"&lt;SEP&gt;"俄罗斯是一个国家，其央行也在持续增持黄金储备，以增强国家经济和货币的稳定性和安全性。"</data>
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347&lt;SEP&gt;chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d3">[{"level": 0, "cluster": 0}]</data>
+    </node>
+    <node id="&quot;央行购金&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"央行购金是指各国央行购买黄金储备的行为，这一行为对全球黄金市场有显著影响。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d3">[{"level": 0, "cluster": 0}]</data>
+    </node>
+    <node id="&quot;美国联邦债务&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"美国联邦债务总额是指美国政府的累计债务，反映其财政状况和信用水平。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;M2&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"M2是广义货币供应量指标，包括现金、支票存款和其他流动性强的资产，反映一国货币环境。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;地缘冲突&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"地缘冲突指国际或地区间的政治军事冲突，这种不稳定性可能影响全球经济和市场预期。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;风险情形&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"风险情形是一种假设情景，描述在负面经济事件下的市场表现，如加息导致的负面回报。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;激进情形&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"激进情形是假设的一种情况，预测在更低利率和更高政治不稳定下的潜在市场表现。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;历史均值+1标准差区间&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"这是一个统计学术语，用来描述一组数据中标准差范围以外的波动情况，通常用于分析市场风险。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;2024年数据&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"2024年数据是有关黄金储备和市场趋势的重要数据参考，影响投资决策。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;2025年3月数据&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"该数据提供了黄金市场的相关指标，帮助分析黄金ETF的市场表现。"</data>
+      <data key="d2">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+    </node>
+    <node id="&quot;平安基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"平安基金管理有限公司是一家基金管理公司，在基金行业中占有重要地位。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;天弘基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"天弘基金管理有限公司是一家以管理基金业务为主的金融机构。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;海富通基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"海富通基金管理有限公司是一家专业从事基金管理的公司，提供多样化的基金产品。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;鹏华基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"鹏华基金管理有限公司是中国的一家大型基金管理机构之一。"&lt;SEP&gt;"鹏华基金管理有限公司是中国的一家大型基金管理机构之一，为投资者提供多种基金产品。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;景顺长城基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"景顺长城基金管理有限公司在中国基金市场中具有广泛的影响力。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;工银瑞信基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"工银瑞信基金管理有限公司是工行控股的知名基金管理公司。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;招商基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"招商基金管理有限公司是一家致力于提供优质基金管理服务的公司。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;国联安基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"国联安基金管理有限公司在资产管理领域拥有丰富经验。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;摩根基金管理(中国)有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"摩根基金管理(中国)有限公司是摩根在中国的分支机构，专注于基金管理。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;大成基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"大成基金管理有限公司以其专业的投资管理能力而闻名。"&lt;SEP&gt;"大成基金管理有限公司以其专业的投资管理能力而闻名，为客户提供多样化的投资选择。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;泰康基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"泰康基金管理有限公司专注于开发和管理多种类型的基金。"&lt;SEP&gt;"泰康基金管理有限公司专注于开发和管理多种类型的基金产品，以满足不同投资者的需求。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;西藏东财基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"西藏东财基金管理有限公司是少数在西藏注册的基金管理公司之一。"&lt;SEP&gt;"西藏东财基金管理有限公司是少数在西藏注册的基金管理公司之一，具有独特的市场优势。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;金鹰基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"金鹰基金管理有限公司是一家新兴的基金公司。"&lt;SEP&gt;"金鹰基金管理有限公司是一家新兴的基金公司，致力于创新和高效的基金管理。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;鹏扬基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"鹏扬基金管理有限公司专注于基金产品创新与管理。"&lt;SEP&gt;"鹏扬基金管理有限公司专注于基金产品创新与管理，提供优质的资产管理服务。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;万家基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"万家基金管理有限公司是一家提供全面资产管理服务的公司。"&lt;SEP&gt;"万家基金管理有限公司是一家提供全面资产管理服务的公司，拥有广泛的投资产品系列。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;华泰证券(上海)资产管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"华泰证券(上海)资产管理有限公司属于华泰证券旗下, 提供专业的资产管理服务。"&lt;SEP&gt;"华泰证券(上海)资产管理有限公司属于华泰证券旗下, 提供资产管理服务。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;永赢基金管理有限公司&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"永赢基金管理有限公司在中国基金市场中快速发展。"&lt;SEP&gt;"永赢基金管理有限公司在中国基金市场中快速发展，以其灵活的管理策略著称。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;黄金ETF量化配置模型&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"黄金ETF量化配置模型是一种基金投资策略，旨在通过量化模型优化黄金资产的配置。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;上海黄金交易所&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"上海黄金交易所提供黄金交易及定价服务，是中国重要的金属交易场所。"&lt;SEP&gt;"上海黄金交易所是一个重要的金融市场，提供上海金集中定价合约和黄金现货交易。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999&lt;SEP&gt;chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;之前海开源黄金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"之前海开源黄金etf是一种交易所交易基金，主要投资于黄金现货合约，追求跟踪误差的最小化。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;南方上海金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"南方上海金etf专注于紧密跟踪黄金资产的价格变化，提高投资者的投资回报。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;嘉实上海金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"嘉实上海金etf通过跟踪上海金午盘基准价，提供具有竞争力的投资回报。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+    </node>
+    <node id="&quot;天弘上海金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"天弘上海金etf是一只黄金ETF基金，旨在通过紧密跟踪上海黄金交易所的定价合约来实现收益。"&lt;SEP&gt;"天弘上海金etf着眼于追求跟踪偏离度和误差的最小化，提供稳定的投资回报。"</data>
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999&lt;SEP&gt;chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;张钟玉&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"张钟玉是商品型基金的基金经理，负责管理黄金ETF的投资与跟踪误差控制。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d3">[{"level": 0, "cluster": 1}]</data>
+    </node>
+    <node id="&quot;沙川&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"沙川是商品型基金的基金经理，专注于通过上海黄金交易所的黄金合约控制跟踪误差。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;王祥&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"王祥是商品型基金的基金经理，与赵云阳合作管理黄金ETF。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;赵云阳&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"赵云阳是商品型基金的基金经理，与王祥合作管理黄金ETF。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;鲍杰&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"鲍杰管理的商品型基金主要投资于上海黄金交易所Au99.99现货合约。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;姚曦&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"姚曦是商品型基金的基金经理，通过投资上海黄金交易所合约进行管理。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;赵栩&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"赵栩是商品型基金的基金经理，致力于追求基金的跟踪误差最小化。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d3">[{"level": 0, "cluster": 1}]</data>
+    </node>
+    <node id="&quot;王乐乐&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"王乐乐管理的基金紧密跟踪上海金价格，注重最小化的跟踪误差。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;艾小军&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"艾小军是商品型基金的基金经理，专注于黄金ETF的价格跟踪与管理。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;上海黄金交易所AU99.99合约&quot;">
+      <data key="d0">"EVENT"</data>
+      <data key="d1">"Au99.99合约是上海黄金交易所提供的黄金现货合约，其收益率是基金追踪的对象之一。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;产品跟踪误差最小化&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"基金管理的目标是通过投资策略和组合来最小化与基准指数的跟踪误差。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d3">[{"level": 0, "cluster": 1}]</data>
+    </node>
+    <node id="&quot;广发上海金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"广发上海金etf是广发管理的一只基金，主要投资于上海黄金交易所合约，以提供稳定的回报。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;富国上海金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"富国上海金etf是一只ETF基金，旨在紧密跟踪上海金价格，最小化跟踪偏离度和误差。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;国泰黄金ETF&quot;">
+      <data key="d0">"ORGANIZATION"</data>
+      <data key="d1">"国泰黄金etf基金致力于紧密跟踪黄金资产的价格变化，为投资者提供有效的金融工具。"</data>
+      <data key="d2">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+    </node>
+    <node id="&quot;AI技术&quot;">
+      <data key="d2">chunk-17a8aea60d57caaac33e063547685e8a</data>
+      <data key="d1">"AI技术在量化投资中用于优化投资策略和因子挖掘。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;量化投资&quot;">
+      <data key="d2">chunk-17a8aea60d57caaac33e063547685e8a</data>
+      <data key="d1">"AI技术在量化投资中用于优化投资策略和因子挖掘。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;新能源和新材料&quot;">
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d1">"该基金专注于在新能源与新材料领域的量化股票投资，反映其投资方向的明确性。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;公用事业&quot;">
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d1">"华夏中证全指公用事业ETF通过投资于公用事业领域的股票反映出其行业投资策略。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;通信&quot;">
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d1">"广发国证通信ETF的投资目标明确集中在通信领域，作为行业指数反映出市场策略。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;通信服务&quot;">
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d1">"南方中证通信服务ETF专注于通信服务领域，表现出其专注于该领域股票的特点。"</data>
+      <data key="d0">"UNKNOWN"</data>
+      <data key="d3">[{"level": 0, "cluster": 3}]</data>
+    </node>
+    <node id="&quot;基金净值更新&quot;">
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d1">"20250318是一个标记多个基金最新净值更新的日期，显示其当前市场表现。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;基金截止日期&quot;">
+      <data key="d2">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d1">"20241231作为多个基金的截止日期，标志着其财务或管理周期的结束。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;工银瑞信中证消费龙头ETF&quot;">
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d1">"工银瑞信基金管理着工银瑞信中证消费龙头ETF这一基金产品。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;广发国证信创ETF&quot;">
+      <data key="d2">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d1">"广发基金管理着广发国证信创ETF这一基金产品。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <node id="&quot;巨灾应对策略&quot;">
+      <data key="d2">chunk-771c001cd6f352138e4f1139d6560999</data>
+      <data key="d1">"平安基金管理有限公司可能参与开发巨灾应对策略。"</data>
+      <data key="d0">"UNKNOWN"</data>
+    </node>
+    <edge source="&quot;全球经济&quot;" target="&quot;央行&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"全球经济的不确定性导致央行增加黄金储备来提升金融安全，反映出两者之间的互动关系。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;央行&quot;" target="&quot;黄金&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"央行的购金策略对黄金需求和价格形成支撑，反映出它们之间的紧密联系。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金&quot;" target="&quot;中国黄金市场&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"黄金价格的变化直接影响中国黄金市场的消费量和购买行为。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金&quot;" target="&quot;黄金ETF&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"黄金ETF作为投资工具，依赖于黄金市场的表现，投资者通过这些工具管理风险。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金&quot;" target="&quot;通货膨胀&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"在通货膨胀环境中，黄金被视为对抗货币贬值的可靠手段，所以需求增加。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金&quot;" target="&quot;美联储&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"美联储的货币政策可以影响美元的价值，从而间接影响黄金的价格和需求。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金&quot;" target="&quot;新兴市场国家&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"新兴市场国家购金是为了分散外汇储备风险，对全球黄金需求有重大影响。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金ETF&quot;" target="&quot;张钟玉&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"张钟玉作为基金经理，负责管理和追踪与黄金ETF相关的投资。"</data>
+      <data key="d6">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金ETF&quot;" target="&quot;赵栩&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"赵栩作为基金经理，专注于黄金ETF的价格追踪与管理，最小化误差。"</data>
+      <data key="d6">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金ETF&quot;" target="&quot;产品跟踪误差最小化&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"黄金ETF致力于通过精细的投资策略来实现产品的跟踪误差最小化。"</data>
+      <data key="d6">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;美联储&quot;" target="&quot;央行购金&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"美联储的货币政策如利率调整可能影响各国央行对黄金的态度和储备调整策略。"</data>
+      <data key="d6">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;美联储&quot;" target="&quot;华安基金&quot;">
+      <data key="d4">6.0</data>
+      <data key="d5">"华安基金建议投资者关注美联储的政策动向，因为这些政策会影响市场预期和黄金价格。"</data>
+      <data key="d6">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;人工智能&quot;" target="&quot;科技用金&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"人工智能应用的发展推动了科技用金的需求，使黄金在科技方面的用途增加。"</data>
+      <data key="d6">chunk-25c925213fc11c82831ec819b5e4122f</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;华安黄金易(ETF)&quot;" target="&quot;黄金ETF基金&quot;">
+      <data key="d4">6.0</data>
+      <data key="d5">"两个实体都是与黄金相关的ETF基金，可能有相似的市场表现和投资目标。"</data>
+      <data key="d6">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;华安黄金易(ETF)&quot;" target="&quot;华夏黄金ETF&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"这两者都是与中国市场相关的黄金ETF基金产品，可能会在市场中有相互竞争关系。"</data>
+      <data key="d6">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金ETF基金&quot;" target="&quot;博时黄金ETF&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"两者均为黄金ETF基金，受相似市场条件影响，可能存在竞争关系。"</data>
+      <data key="d6">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;美国:美元指数&quot;" target="&quot;CPI:当月同比&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"美元指数和CPI都是反映经济状态的重要指标，彼此间存在一定的宏观经济关系。"</data>
+      <data key="d6">chunk-d9b7018da99c3cc84f2b723a7668a9e2</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;银华新能源新材料量化股票发起式C&quot;" target="&quot;新能源和新材料&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"该基金专注于在新能源与新材料领域的量化股票投资，反映其投资方向的明确性。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;华夏中证全指公用事业ETF&quot;" target="&quot;公用事业&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"华夏中证全指公用事业ETF通过投资于公用事业领域的股票反映出其行业投资策略。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;华夏中证全指公用事业ETF&quot;" target="&quot;华夏基金&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"华夏基金负责管理并运营华夏中证全指公用事业ETF，提供基金管理服务。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;广发国证通信ETF&quot;" target="&quot;通信&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"广发国证通信ETF的投资目标明确集中在通信领域，作为行业指数反映出市场策略。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;广发国证通信ETF&quot;" target="&quot;广发基金&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"广发基金负责广发国证通信ETF的管理和运营, 确保基金的正常运作。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;南方中证通信服务ETF&quot;" target="&quot;通信服务&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"南方中证通信服务ETF专注于通信服务领域，表现出其专注于该领域股票的特点。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;南方中证通信服务ETF&quot;" target="&quot;南方基金&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"南方基金管理和运营南方中证通信服务ETF, 提供专业基金管理。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;广发基金&quot;" target="&quot;广发国证信创ETF&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"广发基金管理着广发国证信创ETF这一基金产品。"</data>
+      <data key="d6">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;南方基金&quot;" target="&quot;大盘平衡型&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"南方基金提供大盘平衡型基金产品，适应多样化的投资需求。"</data>
+      <data key="d6">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;南方基金&quot;" target="&quot;黄金价格&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"南方基金的分析显示黄金定价受多个因素影响，包括货币政策和地缘政治因素。"</data>
+      <data key="d6">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;20250318&quot;" target="&quot;基金净值更新&quot;">
+      <data key="d4">6.0</data>
+      <data key="d5">"20250318是一个标记多个基金最新净值更新的日期，显示其当前市场表现。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;20241231&quot;" target="&quot;基金截止日期&quot;">
+      <data key="d4">5.0</data>
+      <data key="d5">"20241231作为多个基金的截止日期，标志着其财务或管理周期的结束。"</data>
+      <data key="d6">chunk-d892be9bf23a7e741f2553dbd12bb3a8</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;工银瑞信基金&quot;" target="&quot;工银瑞信中证消费龙头ETF&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"工银瑞信基金管理着工银瑞信中证消费龙头ETF这一基金产品。"</data>
+      <data key="d6">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金价格&quot;" target="&quot;华安基金&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"华安基金通过分析框架研究黄金价格的影响因素，如货币政策和地缘政治。"</data>
+      <data key="d6">chunk-7e17b7f989729387d522af9979154347</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;COMEX&quot;" target="&quot;央行购金&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"COMEX市场上反映的价格走势和各国央行的购金行为会相互影响和反馈。"</data>
+      <data key="d6">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;中国&quot;" target="&quot;央行购金&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"中国通过增持黄金储备来增强其经济稳定性和国际金融影响力。"</data>
+      <data key="d6">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;俄罗斯&quot;" target="&quot;央行购金&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"俄罗斯通过增加其黄金储备以提高其经济的稳定性和抗风险能力。"</data>
+      <data key="d6">chunk-d6a14f39fe8daac20f1346186aa49adb</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;平安基金管理有限公司&quot;" target="&quot;巨灾应对策略&quot;">
+      <data key="d4">6.0</data>
+      <data key="d5">"平安基金管理有限公司可能参与开发巨灾应对策略。"</data>
+      <data key="d6">chunk-771c001cd6f352138e4f1139d6560999</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;天弘基金管理有限公司&quot;" target="&quot;黄金ETF量化配置模型&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"天弘基金管理有限公司可能运用量化模型进行黄金ETF的投资配置优化。"</data>
+      <data key="d6">chunk-771c001cd6f352138e4f1139d6560999</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;黄金ETF量化配置模型&quot;" target="&quot;上海黄金交易所&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"量化模型需依赖上海黄金交易所提供的数据进行策略制定和效能评估。"</data>
+      <data key="d6">chunk-771c001cd6f352138e4f1139d6560999</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;上海黄金交易所&quot;" target="&quot;沙川&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"沙川管理的基金通过投资上海黄金交易所的合约，实现基金追踪误差最小化。"</data>
+      <data key="d6">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;上海黄金交易所&quot;" target="&quot;上海黄金交易所AU99.99合约&quot;">
+      <data key="d4">8.0</data>
+      <data key="d5">"Au99.99合约是上海黄金交易所的交易产品之一，与基金的投资挂钩。"</data>
+      <data key="d6">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;王祥&quot;" target="&quot;赵云阳&quot;">
+      <data key="d4">7.0</data>
+      <data key="d5">"王祥与赵云阳合作管理基金，实现共同的投资目标。"</data>
+      <data key="d6">chunk-5254be0f32c3dbd7273d395edd0492d1</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="&quot;AI技术&quot;" target="&quot;量化投资&quot;">
+      <data key="d4">9.0</data>
+      <data key="d5">"AI技术在量化投资中用于优化投资策略和因子挖掘。"</data>
+      <data key="d6">chunk-17a8aea60d57caaac33e063547685e8a</data>
+      <data key="d7">1</data>
+    </edge>
+  </graph>
+</graphml>

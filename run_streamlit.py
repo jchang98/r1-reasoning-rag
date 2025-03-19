@@ -3,13 +3,13 @@ import subprocess
 import asyncio
 from datetime import datetime
 from src.agent import QAAgent, get_feedback
-from src.utils import show_hist_log, parse_file_names
+from src.utils import show_hist_log, parse_file_names, remove_if_exist
 import os
 import glob
 
 st.set_page_config(layout="wide")
 st.title('📖 Hithink Deep Research V3')
-
+WORKING_DIR = "./local_mem"
 
 def clean():
     # 保持用户输入为空
@@ -23,6 +23,20 @@ def clean():
         st.session_state['feedback'] = ""
     if "message_queue" in st.session_state:
         st.session_state['message_queue'] = []
+
+
+    if 'selected_problem' in st.session_state:
+        st.session_state.selected_problem = None
+    if 'selected_time' in st.session_state:
+        st.session_state.selected_time = None
+
+
+    remove_if_exist(f"{WORKING_DIR}/vdb_entities.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_full_docs.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_llm_response_cache.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_text_chunks.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_community_reports.json")
+    remove_if_exist(f"{WORKING_DIR}/graph_chunk_entity_relation.graphml")
     
     # 使用rerun来刷新整个页面
     st.rerun()
@@ -41,6 +55,13 @@ def main():
         st.session_state['feedback'] = ""
     if "message_queue" not in st.session_state:
         st.session_state['message_queue'] = []
+
+    remove_if_exist(f"{WORKING_DIR}/vdb_entities.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_full_docs.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_llm_response_cache.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_text_chunks.json")
+    remove_if_exist(f"{WORKING_DIR}/kv_store_community_reports.json")
+    remove_if_exist(f"{WORKING_DIR}/graph_chunk_entity_relation.graphml")
 
     model = st.sidebar.selectbox('选择模型', ['deepseek-r1-vol', 'deepseek-r1-ths'])
     data_eng = st.sidebar.selectbox('数据引擎', ['ifind_data', 'ifind_data_agent'])

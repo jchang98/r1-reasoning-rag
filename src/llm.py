@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 
 import asyncio
@@ -15,6 +16,8 @@ import requests
 import httpx
 
 
+@retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=10),
+       retry=retry_if_exception_type((httpx.HTTPStatusError, httpx.RequestError, httpx.TimeoutException)))
 async def get_r1_ask(messages):
     url = "http://open-server.51ifind.com/standardgwapi/arsenal_hub/vtuber/ai_access/qianfan/v1/chat/completions"
     # userId和token可以login之后获取
@@ -31,7 +34,7 @@ async def get_r1_ask(messages):
         "messages": messages,
         "stream": False
     }
-    # response = requests.post(url,headers=headers,json=data,verify=False, stream=False)
+    # response = requests.post(url,headers=headers,json=data,verify=False, stream=False, timeout=None)
     async with httpx.AsyncClient() as client:
         response = await client.post(url, headers=headers, json=data, timeout=None)
 
@@ -39,7 +42,7 @@ async def get_r1_ask(messages):
     if response.status_code == 200:
         return DotMap(response.json())
     else:
-        print("请求r1失败")
+        print("请求r1失败，状态码:", response.status_code)
         return {}
 
 
@@ -141,7 +144,8 @@ async def generate_completions(client, model, messages, format=None):
         )
     return response
 
-r1 = get_ai_client("ep-20250208165153-wn9ft")
+# r1 = get_ai_client("ep-20250208165153-wn9ft")
+r1 = get_ai_client("deepseek-r1-250120")
 
 # r1 = ChatNVIDIA(model="ep-20250208165153-wn9ft",
 #                 api_key=os.getenv("DEEPSEEK_API_KEY"), 

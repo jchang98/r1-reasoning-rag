@@ -39,7 +39,7 @@ class DataClient:
 
         try:
             # async with httpx.AsyncClient() as client:
-            #     response = await client.post(url, data=params, headers=headers)
+                # response = await client.post(url, data=params, headers=headers)
             response = requests.post(url, data=params, headers=headers)
             sources = json.loads(
                 response.json()['data']['query_data']['condition']

@@ -9,6 +9,8 @@ from src.prompts import Prompts
 from src.llm import r1, get_r1_ask
 from src.logging import log_event, initial_logger
 from src.utils import console
+from src.mindmap_graph import *
+from src.mindmap_visual import visualize_graphml
 import json
 import re
 from graphviz import Digraph
@@ -61,7 +63,7 @@ async def get_feedback(question: str , model: str = "deepseek-r1-ths", start_tim
         llm_output = await get_r1_ask(messages)
     elif model == "deepseek-r1-vol":
         llm_output = await r1.chat.completions.create(
-            model="ep-20250208165153-wn9ft", messages=messages
+            model="deepseek-r1-250120", messages=messages
         )
     
     reasoning = llm_output.choices[0].message.reasoning_content.strip()
@@ -100,7 +102,7 @@ class QAAgent:
             llm_output = await get_r1_ask(messages)
         elif self.model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
-                model="ep-20250208165153-wn9ft", messages=messages
+                model="deepseek-r1-250120", messages=messages
             )
         
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
@@ -125,7 +127,7 @@ class QAAgent:
             llm_output = await get_r1_ask(messages)
         elif self.model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
-                model="ep-20250208165153-wn9ft", messages=messages
+                model="deepseek-r1-250120", messages=messages
             )
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         response = llm_output.choices[0].message.content.strip()
@@ -241,7 +243,7 @@ class QAAgent:
             llm_output = await get_r1_ask(messages)
         elif self.model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
-                model="ep-20250208165153-wn9ft", messages=messages
+                model="deepseek-r1-250120", messages=messages
             )
         
         cur_reasoning = llm_output.choices[0].message.reasoning_content.strip()
@@ -271,12 +273,13 @@ class QAAgent:
         question = state["question"]
         context = state["retrieved_context"]
         useful_information = state['useful_information']
+        validate_reasoning = state['reasoning']
         answer = ""
     
         console.print(f"\n=== STEP 3: NO ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information)}\nfinal_answer: {answer}")
         log_event(f"\n=== STEP 3: NO ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information)}\nfinal_answer: {answer}")
 
-        return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question }
+        return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question, "reasoning": validate_reasoning }
 
     async def answer(self, state: GraphState):
         # print("\n=== STEP 3: ANSWERING ===")
@@ -290,21 +293,46 @@ class QAAgent:
         data_agent_count = state["data_agent_count"]
         validate_reasoning = state['reasoning']
 
+        # 根据validate_reasoning + 标题子标题信息生成推理路径，用来指导写作
+        validate_reasoning_str = "\n<reasoning end>\n".join(validate_reasoning)
+        prompt = Prompts.GEN_REASONING_PATH.invoke({"validate_reasoning": validate_reasoning_str, "question": question, "now": now}).text
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+        if self.model == "deepseek-r1-ths":
+            llm_output = await get_r1_ask(messages)
+        elif self.model == "deepseek-r1-vol":
+            llm_output = await r1.chat.completions.create(
+                model="deepseek-r1-250120", messages=messages
+            )
+        reasoning_path = llm_output.choices[0].message.content.strip() 
 
         useful_information_str = ""
         for idx, r in enumerate(useful_information):
             web_page_content = r.get('content', '')[:4000]
             useful_information_str += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
-        prompt = Prompts.ANSWER_QUESTION.invoke({"useful_information": useful_information_str, "question": question, "now": now}).text
+
+        # 将useful info构建为graph，提取点和边的信息
+        mind_map = MindMap(useful_information_str)
+        await mind_map.initialize()
+
+        # 读取./local_mem/graph_chunk_entity_relation.graphml 转化为点和边
+        entity_context = mind_map.get_entity_csv("./local_mem/graph_chunk_entity_relation.graphml")
+        relations_context  = mind_map.get_relation_csv("./local_mem/graph_chunk_entity_relation.graphml")
+
+
+
+        prompt = Prompts.ANSWER_QUESTION.invoke({"useful_information": useful_information_str, "question": question, "reasoning_path": reasoning_path, "entity_context":entity_context, "relations_context": relations_context, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
+        
 
         if self.model == "deepseek-r1-ths":
             llm_output = await get_r1_ask(messages)
         elif self.model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
-                model="ep-20250208165153-wn9ft", messages=messages
+                model="deepseek-r1-250120", messages=messages
             )
 
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
@@ -329,7 +357,7 @@ class QAAgent:
         log_event(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}")
         with st.chat_message("assistant"):
             st.markdown(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}")
-        return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question }
+        return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question, "reasoning": validate_reasoning }
 
     async def find_missing_information(self, state: GraphState):
         # print("\n=== STEP 2b: FINDING MISSING INFORMATION ===")
@@ -471,7 +499,7 @@ class QAAgent:
             llm_output = await get_r1_ask(messages)
         elif self.model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
-                model="ep-20250208165153-wn9ft", messages=messages
+                model="deepseek-r1-250120", messages=messages
             )
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
@@ -518,7 +546,7 @@ class QAAgent:
         # 定义异步处理函数
         async def process_polish(messages):
             return await r1.chat.completions.create(
-                model="ep-20250208165153-wn9ft", messages=messages
+                model="deepseek-r1-250120", messages=messages
             )
         
         # 使用异步并行处理
@@ -547,13 +575,36 @@ class QAAgent:
 
             useful_information = report['useful_information']
             sec_question = report['question']
+            validate_reasoning = report['reasoning']
+            # 根据validate_reasoning + 标题子标题信息生成推理路径，用来指导写作
+            validate_reasoning_str = "\n<reasoning end>\n".join(validate_reasoning)
+            
+            prompt = Prompts.GEN_REASONING_PATH.invoke({"validate_reasoning": validate_reasoning_str, "question": question, "now": now}).text
+            messages = [
+                {"role": "user", "content": prompt}
+            ]
+            if self.model == "deepseek-r1-ths":
+                llm_output = await get_r1_ask(messages)
+            elif self.model == "deepseek-r1-vol":
+                llm_output = await r1.chat.completions.create(
+                    model="deepseek-r1-250120", messages=messages
+                )
+            reasoning_path = llm_output.choices[0].message.content.strip() 
+
             useful_information_str = ""
             for idx, r in enumerate(useful_information):
                 web_page_content = r.get('content', '')[:4000]
                 useful_information_str += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
 
+            # 将useful info构建为graph，提取点和边的信息
+            mind_map = MindMap(useful_information_str)
+            await mind_map.initialize()
 
-            prompt = Prompts.ANSWER_QUESTION_SERIAL.invoke({"useful_information": useful_information_str,           "question": sec_question, "already_writing": already_writing, "now": now}).text
+            # 读取./local_mem/graph_chunk_entity_relation.graphml 转化为点和边
+            entity_context = mind_map.get_entity_csv("./local_mem/graph_chunk_entity_relation.graphml")
+            relations_context  = mind_map.get_relation_csv("./local_mem/graph_chunk_entity_relation.graphml")
+
+            prompt = Prompts.ANSWER_QUESTION_SERIAL.invoke({"useful_information": useful_information_str, "question": sec_question, "already_writing": already_writing, "reasoning_path": reasoning_path, "entity_context":entity_context, "relations_context": relations_context, "now": now}).text
             messages = [
                 {"role": "user", "content": prompt}
             ]
@@ -562,7 +613,7 @@ class QAAgent:
                 llm_output = await get_r1_ask(messages)
             elif self.model == "deepseek-r1-vol":
                 llm_output = await r1.chat.completions.create(
-                    model="ep-20250208165153-wn9ft", messages=messages
+                    model="deepseek-r1-250120", messages=messages
                 )
 
             t_reasoning = llm_output.choices[0].message.reasoning_content.strip()
@@ -618,7 +669,7 @@ class QAAgent:
             llm_output = await get_r1_ask(messages)
         elif self.model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
-                model="ep-20250208165153-wn9ft", messages=messages
+                model="deepseek-r1-250120", messages=messages
             )
 
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
@@ -697,7 +748,16 @@ class QAAgent:
         elif writing_method == "serial":
             self.mermaid(final_report, add_str="SERIAL")
 
+        # 展示mindmap
+        graphml_file = "./local_mem/graph_chunk_entity_relation.graphml"
+        html_file = "./local_mem/graph_chunk_entity_relation.html"
+        visualize_graphml(graphml_file, html_file)
 
+        with open(html_file, 'r', encoding='utf-8') as file:
+            html_content = file.read()
+        with st.chat_message("assistant"):
+            st.markdown(f"==== MINDMAP ====\n")
+            st.components.v1.html(html_content,height=600) 
 
         end_time = datetime.now()
         print(f"Total time: {end_time - start_time}")

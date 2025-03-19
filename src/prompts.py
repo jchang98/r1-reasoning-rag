@@ -162,8 +162,27 @@ class Prompts:
         Response:
         """
     )
+    GEN_REASONING_PATH = PromptTemplate(
+        input_variables=["validate_reasoning", "question", "now"],
+        template="""
+        You are a writing plan agent. Today is {now}.
+        You will be provided with a question and a reflection list about the question.
+        Your role is to carefully look through the reflection list and generate a writing plan.
+
+        Here is the requirement of your writing plan:
+        - The writing plan is generated according to the reflection list and is used to guide subsequent writing
+        - Ignore the "missing information" in the reflection list, and only include what you have obtained and what you want to write in your writing plan
+
+        The Question: {question}
+        Reflection List: 
+        {validate_reasoning}
+
+
+        Writing Plan:
+        """
+    )
     ANSWER_QUESTION = PromptTemplate(
-        input_variables=["useful_information", "question", "now"],
+        input_variables=["useful_information", "question", "reasoning_path", "entity_context","relations_context", "now"],
         template="""
         You are a deep research writing agent. Today is {now}.
         You will be provided with a topic and chunks of text that contain the related information to the topic.
@@ -172,22 +191,34 @@ class Prompts:
         Here is the requirement of your writing:
         1. Don't start your writing with '# title' or try to write other sections, only write the article paragraph content directly.
         2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
-        3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is professional, so as to attract readers to read.
+        3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is simple and easy to understand, so as to facilitate the reading of readers, mainly non-professionals.
         4. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
         5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
         6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
-        7. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic.
+        7. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic, and you need to generate 'Writing' according to the 'Writing Plan'.
         8. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
         9. Do not include any other text than the paragraph content. please response in chinese.
         
-        Context: {useful_information}
+        -----Entities Context-----
+        ```csv
+        {entity_context}
+        ```
+        -----Relationships Context-----
+        ```csv
+        {relations_context}
+        ```
+        -----Sources Context-----
+        ```csv
+        {useful_information}
+        ```
 
         The topic: {question}
+        Writing Plan: {reasoning_path}
         Writing:
         """
     )
     ANSWER_QUESTION_SERIAL = PromptTemplate(
-        input_variables=["useful_information", "question", "already_writing", "now"],
+        input_variables=["useful_information", "question", "already_writing", "reasoning_path", "entity_context","relations_context", "now"],
         template="""
         You are a deep research writing agent. Today is {now}.
         You will be provided with a topic, the already written text and chunks of text that contain the related information to the topic.
@@ -196,21 +227,33 @@ class Prompts:
         Here is the requirement of your writing:
         1. Don't start your writing with '# title' or try to write other sections, only write the article paragraph content directly.
         2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
-        3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is professional, so as to attract readers to read.
+        3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is simple and easy to understand, so as to facilitate the reading of readers, mainly non-professionals.
         4. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
         5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
         6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
         7. Maintain narrative consistency with previously written sections while avoiding content duplication. Ensure smooth transitions between sections.
-        8. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic.
+        8. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic, and you need to generate 'Writing' according to the 'Writing Plan'.
         9. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
         10. Do not include any other text than the paragraph content. please response in chinese.
         
-        Context: {useful_information}
+        -----Entities Context-----
+        ```csv
+        {entity_context}
+        ```
+        -----Relationships Context-----
+        ```csv
+        {relations_context}
+        ```
+        -----Sources Context-----
+        ```csv
+        {useful_information}
+        ```
 
         Already written text:
         {already_writing}
 
         The topic: {question}
+        Writing Plan: {reasoning_path}
         Writing:
         """
     )
