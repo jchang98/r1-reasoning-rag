@@ -87,7 +87,7 @@ class QAAgent:
         self.workflow = self.create_workflow(writing_method)
         self.model = model
         self.data_eng = data_eng
-        self.outline2maxloop = 0
+        # self.outline2maxloop = 0
 
 
     async def fc(self, question):
@@ -215,18 +215,19 @@ class QAAgent:
         reasoning = state.get('reasoning',[])
 
         # 从state中获取循环计数，如果没有则初始化为1
-        loop_count = state.get("loop_count", 1)
+        loop_count = state.get("loop_count", 0)
+        loop_count += 1
         if loop_count > MAX_LOOP_COUNT:  # 设置最大循环次数为MAX_LOOP_COUNT
             console.print("达到最大重试次数，强制完成")
             log_event("达到最大重试次数，强制完成")
-            self.outline2maxloop = self.outline2maxloop + 1
+            # self.outline2maxloop = self.outline2maxloop + 1
             return {
                 "router_decision": "COMPLETE",  # 强制完成
                 "retrieved_context": state["retrieved_context"],
                 "useful_information": state.get("useful_information",[]),
                 "missing_information": state.get("missing_information",""),
                 "reasoning": state.get("reasoning",[]),
-                "loop_count": loop_count+1
+                "loop_count": loop_count
             }
 
         useful_information_str = ""
@@ -266,7 +267,7 @@ class QAAgent:
             st.markdown(f"\n=== STEP 2: VALIDATION ===\nglobal question: {question}\nloop_count:{loop_count}\nrouter decision:{router_decision}\nmissing information:{missing_information}")
 
 
-        return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": reasoning, "loop_count": loop_count+1}
+        return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": reasoning, "loop_count": loop_count}
 
     async def no_answer(self, state: GraphState):
         # print("\n=== STEP 3: NO ANSWER ===")
@@ -456,7 +457,7 @@ class QAAgent:
         workflow.set_entry_point("retrieve context")
         workflow.add_edge("retrieve context", "is retrieved context complete?")
         
-        if writing_method in ["parallel", "polish"]:
+        if set(writing_method) & set(["parallel", "polish"]):
             workflow.add_conditional_edges(
                 "is retrieved context complete?",
                 self.decide_route,
@@ -470,7 +471,7 @@ class QAAgent:
     
             workflow.add_edge("answer", END)
             compiled_graph = workflow.compile()
-        elif writing_method == "serial":
+        elif set(writing_method) & set(["serial"]):
             workflow.add_conditional_edges(
                 "is retrieved context complete?",
                 self.decide_route,
@@ -685,7 +686,7 @@ class QAAgent:
         global MAX_LOOP_COUNT
         MAX_LOOP_COUNT = max_loop
 
-        self.outline2maxloop = 0
+        # self.outline2maxloop = 0
         # Combine information
         combined_query = f"""
         Initial Query: {question}
@@ -711,42 +712,51 @@ class QAAgent:
         # 使用异步并行处理
         results = await async_parallel_process(outlines_lst, process_outline)
 
+        outline2maxloop = len([res for res in results if res.get("loop_count") == MAX_LOOP_COUNT])
+        with st.chat_message("assistant"):
+            st.markdown(f"{outline2maxloop}个outline达到了最大循环次数")
+            log_event(f"{outline2maxloop}个outline达到了最大循环次数")
+
 
         # 并行生成
-        if writing_method in ["parallel", "polish"]:
+        if set(writing_method) & set(["parallel", "polish"]):
             # 根据result的内容去拼接正文
-            final_report = self.get_final_report(outlines_lst, results)
-            console.print(f"\n==== FINAL REPORT (POLISH BEFORE) ====\n{final_report}")
-            log_event(f"\n==== FINAL REPORT (POLISH BEFORE) ====\n{final_report}")
+            parallel_final_report = self.get_final_report(outlines_lst, results)
+            console.print(f"\n==== FINAL REPORT (POLISH BEFORE) ====\n{parallel_final_report}")
+            log_event(f"\n==== FINAL REPORT (POLISH BEFORE) ====\n{parallel_final_report}")
             # self.mermaid(final_report, add_str="POLISH BEFORE")
 
             # 进行polish
             polish_final_report = ""
-            if writing_method == "polish":
+            if "polish" in set(writing_method):
                 polish_final_report = await self.polish(question, outlines, results, polish_step=polish_step)
                 # self.mermaid(final_report, add_str="POLISH AFTER")
+            
 
-        elif writing_method == "serial":
-            final_report = await self.serial(question, outlines, results)
+            # 添加一个结论
+            conclusion = await self.conclusion(question, parallel_final_report)
+            with st.chat_message("assistant"):
+                st.markdown(f"==== CONCLUSION ====\n{conclusion}")
+            parallel_final_report = parallel_final_report + f"\n\n{conclusion}"
+
+        if "serial" in set(writing_method):
+            serial_final_report = await self.serial(question, outlines, results)
+
+            conclusion = await self.conclusion(question, serial_final_report)
+            with st.chat_message("assistant"):
+                st.markdown(f"==== CONCLUSION ====\n{conclusion}")
+            serial_final_report = serial_final_report + f"\n\n{conclusion}"
             # self.mermaid(final_report, add_str="SERIAL")
         
-        with st.chat_message("assistant"):
-            st.markdown(f"{self.outline2maxloop}个outline达到了最大循环次数")
-        log_event(f"{self.outline2maxloop}个outline达到了最大循环次数")
-        # 添加一个结论
-        conclusion = await self.conclusion(question, final_report)
-        with st.chat_message("assistant"):
-            st.markdown(f"==== CONCLUSION ====\n{conclusion}")
-        final_report = final_report + f"\n\n{conclusion}"
 
         #进行展示
-        if writing_method == "parallel":
-            self.mermaid(final_report, add_str="POLISH BEFORE")
-        elif writing_method == "polish":
-            self.mermaid(final_report, add_str="POLISH BEFORE")
+        if  "polish" in set(writing_method):
+            self.mermaid(parallel_final_report, add_str="POLISH BEFORE")
             self.mermaid(polish_final_report, add_str="POLISH AFTER")
-        elif writing_method == "serial":
-            self.mermaid(final_report, add_str="SERIAL")
+        elif "parallel" in set(writing_method):
+            self.mermaid(parallel_final_report, add_str="POLISH BEFORE")
+        if  "serial" in set(writing_method):
+            self.mermaid(serial_final_report, add_str="SERIAL")
 
         # 展示mindmap
         graphml_file = "./local_mem/graph_chunk_entity_relation.graphml"
@@ -757,7 +767,7 @@ class QAAgent:
             html_content = file.read()
         with st.chat_message("assistant"):
             st.markdown(f"==== MINDMAP ====\n")
-            st.components.v1.html(html_content,height=600) 
+            st.components.v1.html(html_content, height=600) 
 
         end_time = datetime.now()
         print(f"Total time: {end_time - start_time}")
@@ -766,7 +776,18 @@ class QAAgent:
         os.makedirs("output", exist_ok=True)
         log_file_name = question[:max_log_file_length]
         with open(f"output/{log_file_name}_{start_time.strftime('%Y%m%d%H%M%S')}.md", "w") as f:
-            f.write(final_report)
+            if "parallel" in set(writing_method):
+                f.write("\n\nparallel report\n\n")
+                f.write(parallel_final_report)
+
+            if  "polish" in set(writing_method):
+                f.write("\n\npolish report\n\n")
+                f.write(polish_final_report)
+            
+
+            if  "serial" in set(writing_method):
+                f.write("\n\nserial report\n\n")
+                f.write(serial_final_report)
         
 
         # 读取搜索的日志信息
@@ -776,7 +797,7 @@ class QAAgent:
         #     log_content = log_content.replace("\n", "\n\n")
         #     st.markdown(log_content)
 
-        return final_report
+
 
 if __name__ == "__main__":
     agent = QAAgent()

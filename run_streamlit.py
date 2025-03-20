@@ -65,7 +65,8 @@ def main():
 
     model = st.sidebar.selectbox('选择模型', ['deepseek-r1-vol', 'deepseek-r1-ths'])
     data_eng = st.sidebar.selectbox('数据引擎', ['ifind_data', 'ifind_data_agent'])
-    writing_method = st.sidebar.selectbox('生成方式', ["parallel", "polish", "serial"]) # 并行生成，润色，串行生成
+    # writing_method = st.sidebar.selectbox('生成方式', ["parallel", "polish", "serial"]) # 并行生成，润色，串行生成
+    writing_method = st.sidebar.multiselect('生成方式', ["parallel", "polish", "serial"]) # 并行生成，润色，串行生成
     if writing_method == "polish":
         polish_step = st.sidebar.slider('润色步数', min_value=2, max_value=8, value=4)
     else:

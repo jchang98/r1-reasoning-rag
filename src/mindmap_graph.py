@@ -2,6 +2,7 @@ from nano_graphrag import GraphRAG, QueryParam
 # from langchain.tools import BaseTool, StructuredTool, tool
 import json
 from dotenv import load_dotenv
+import networkx as nx
 load_dotenv()
 
 
@@ -31,22 +32,16 @@ class MindMap:
 
     def get_entity_csv(self, path: str):
         # 读取 path下的文件，然后转化为csv 格式
-        import networkx as nx
         G = nx.read_graphml(path)
 
-        node_datas = G.nodes(data=True)
-        node_datas = list(node_datas)
+        # 计算入度并确定需要删除的节点（入度为0）
+        in_degrees = dict(G.degree())
+        nodes_to_remove = [n for n, d in in_degrees.items() if d == 0]
+        G.remove_nodes_from(nodes_to_remove)
 
-        ## 清除掉入度为0的点
-        degrees = G.degree()
-        degrees = list(degrees)
-        degrees_more1 = [n for n, d in degrees if d >= 1]
-
+        # 构建CSV数据，确保ID连续
         entites_section_list = [["id", "entity", "type", "description"]]
-        for i, n in enumerate(node_datas):
-            if n[0] not in degrees_more1: # 排除掉入度为0的点
-                G.remove_nodes_from(n[0])
-                continue
+        for i, n in enumerate(G.nodes(data=True)):
             entites_section_list.append(
                 [
                     i,
@@ -63,7 +58,6 @@ class MindMap:
     
     def get_relation_csv(self, path: str):
         # 读取 path下的文件，然后转化为csv 格式
-        import networkx as nx
         G = nx.read_graphml(path)
 
         edges_datas = G.edges(data=True)

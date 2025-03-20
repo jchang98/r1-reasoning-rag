@@ -248,7 +248,7 @@ def create_json(json_data, json_path):
 def start_server(port):
     handler = http.server.SimpleHTTPRequestHandler
     with socketserver.TCPServer(("", port), handler) as httpd:
-        print(f"Server started at http://localhost:{{port}}")
+        print(f"Server started at http://localhost:{port}")
         httpd.serve_forever()
 
 # main function
@@ -266,7 +266,7 @@ def visualize_graphml(graphml_file, html_path, port=8000):
     # server_thread.start()
     
     # open default browser
-    # webbrowser.open(f'http://localhost:{{port}}/{{html_path}}')
+    # webbrowser.open(f'http://localhost:{port}/{html_path}')
     
     # print("Visualization is ready. Press Ctrl+C to exit.")
     # try:
@@ -280,4 +280,4 @@ def visualize_graphml(graphml_file, html_path, port=8000):
 if __name__ == "__main__":
     graphml_file = "/mnt/data/jinchang/smolagents/r1-reasoning-rag-v4/r1-reasoning-rag/local_mem/graph_chunk_entity_relation.graphml"  # replace with your GraphML file path
     html_path = "/mnt/data/jinchang/smolagents/r1-reasoning-rag-v4/r1-reasoning-rag/local_mem/graph_chunk_entity_relation.html"
-    visualize_graphml(graphml_file, html_path, 11236)
+    visualize_graphml(graphml_file, html_path, 11238)
