@@ -102,12 +102,12 @@ def show_hist_log(show_file):
             content = clean_logs(content)
 
             #Newly retrieved context: \n{newly_retrieved_context_lst}\nNewly useful info: {newly_useful_info
-            pattern = r"Newly retrieved context: \n.*?\nNewly useful info:"
-            content = re.sub(pattern, "Newly useful info:", content)
+            pattern = r"'Newly retrieved context':\s*\[(.*?)\],"
+            content = re.sub(pattern, "[]", content, flags=re.DOTALL)
 
             #\nRetrieved Context: \n{retrieve_context_lst}\n Useful info:{useful_info}
-            pattern = r"Retrieved Context: \n.*?\n Useful info:"
-            content = re.sub(pattern, "Useful info:", content)
+            pattern = r"'Retrieved Context':\s*\[(.*?)\],"
+            content = re.sub(pattern, "[]", content, flags=re.DOTALL)
 
             content = content.replace("---", "")
             content = content.replace("\n", "\n\n")
@@ -127,10 +127,10 @@ def show_hist_log(show_file):
     except FileNotFoundError:
         with st.chat_message("assistant"):
             content = f"记录 {show_file} 未找到。"
-            st.markdown(content)
+            st.write(content)
         return
     except Exception as e:
         with st.chat_message("assistant"):
             content = f"读取记录 {show_file} 时出错: {e}"
-            st.markdown(content)
+            st.write(content)
         return

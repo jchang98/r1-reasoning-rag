@@ -70,13 +70,19 @@ async def get_feedback(question: str , model: str = "deepseek-r1-ths", start_tim
     response = llm_output.choices[0].message.content.strip()
 
 
-    console.print(f"==== CLARIFY ====\nuser input: {question}\nfeedback: {response}\n")
-    log_event(f"==== CLARIFY ====\nuser input: {question}\nfeedback: {response}\n")
+    clarify_json = {
+        "user input": question,
+        "clarify reasoning": reasoning,
+        "feedback": response
+    }
+    console.print(f"==== CLARIFY ====\n{clarify_json}")
+    log_event(f"==== CLARIFY ====\n{clarify_json}")
 
     with st.chat_message("user").container():
         st.markdown(question)
     with st.chat_message("assistant").container():
-        st.markdown(f"==== CLARIFY ====\nfeedback: {response}\n")
+        st.markdown(f"==== CLARIFY ====")
+        st.write(clarify_json)
     return response
 
 
@@ -114,7 +120,7 @@ class QAAgent:
             log_event("fc_querys生成解析失败，使用原始question")
             response = [{'name': 'search', 'question': question}]
 
-        return response
+        return response, reasoning
     
     async def get_useful_info(self, question, retrieved_context):
         # 获得有用的信息
@@ -131,7 +137,7 @@ class QAAgent:
             )
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         response = llm_output.choices[0].message.content.strip()
-        return response
+        return response, reasoning
         
 
 
@@ -143,7 +149,7 @@ class QAAgent:
 
         # 对原始questions进行fc
         question = state["question"]
-        fc_querys = await self.fc(question)
+        fc_querys, fc_querys_reasoning = await self.fc(question)
 
         for item in fc_querys:
             if item['name'] == 'search':
@@ -182,7 +188,7 @@ class QAAgent:
                 retrieved_search_content += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
                 idx += 1
 
-        search_useful_info = await self.get_useful_info(question, retrieved_search_content)
+        search_useful_info, search_useful_info_reasoing = await self.get_useful_info(question, retrieved_search_content)
         #解析得到的{url, useful_information}
         try:
             search_useful_info = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", search_useful_info, re.DOTALL)[0])
@@ -197,12 +203,25 @@ class QAAgent:
         for item in result:
             if item.get("type") == "index":
                 useful_info.append({"url": item.get("url", ""), "content": item.get("content", "")[:4000]})
-    
-        console.print(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {str(useful_info)}")
-        log_event(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n{str(retrieved_context)}\n Useful info:{str(useful_info)}")
+
+
+        retrieve_json = {
+            "Searching for": question,
+            "fc_querys_reasoning": fc_querys_reasoning,
+            "fc_querys": fc_querys,
+            "Retrieved Context": retrieved_context,
+            "Useful info reasoing": search_useful_info_reasoing,
+            "Useful info": useful_info,
+        }
+        retrieve_json_brief = retrieve_json.copy()
+        retrieve_json_brief["Retrieved Context"] = "..."
+
+        console.print(f"\n=== STEP 1: RETRIEVAL ===\n{retrieve_json_brief}")
+        log_event(f"\n=== STEP 1: RETRIEVAL ===\n{retrieve_json}")
         
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 1: RETRIEVAL ===\nSearching for: {question}\nfc_query:{fc_querys}\nRetrieved Context: \n...\nUseful info: {str(useful_info)}")
+            st.markdown(f"\n=== STEP 1: RETRIEVAL ===")
+            st.write(retrieve_json_brief)
 
         return {"retrieved_context": retrieved_context, "useful_information": useful_info, "outline_start_time": outline_start_time,"search_count": search_count,  "data_agent_count": data_agent_count}
 
@@ -261,10 +280,20 @@ class QAAgent:
         router_decision = strcutured_response["status"]
         missing_information = strcutured_response["missing_information"]
 
-        console.print(f"\n=== STEP 2: VALIDATION ===\nglobal question: {question}\nloop_count:{loop_count}\nrouter decision:{router_decision}\nmissing information:{missing_information}")
-        log_event(f"\n=== STEP 2: VALIDATION ===\nglobal question: {question}\nloop_count:{loop_count}\nrouter decision:{router_decision}\nmissing information:{missing_information}")
+
+        validate_json = {
+            "global question": question,
+            "loop_count": loop_count,
+            "router_decision": router_decision,
+            "validate reasoning": cur_reasoning,
+            "missing information": missing_information,
+        }
+
+        console.print(f"\n=== STEP 2: VALIDATION ===\n{validate_json}")
+        log_event(f"\n=== STEP 2: VALIDATION ===\n{validate_json}")
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 2: VALIDATION ===\nglobal question: {question}\nloop_count:{loop_count}\nrouter decision:{router_decision}\nmissing information:{missing_information}")
+            st.markdown(f"\n=== STEP 2: VALIDATION ===")
+            st.write(validate_json)
 
 
         return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": reasoning, "loop_count": loop_count}
@@ -349,15 +378,26 @@ class QAAgent:
         parsed_date = datetime.strptime(outline_start_time, date_format)
         outline_time = datetime.now() - parsed_date
 
-        console.print(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information_str)}\nfinal_answer: {answer}")
-        log_event(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information_str)}\nfinal_answer: {answer}")
+
+        answer_json = {
+            "golobal question": question,
+            "useful information": useful_information_str,
+            "reasoning_path": reasoning_path,
+            "final_answer_reasoning": reasoning,
+            "final_answer": answer,
+            "cost time": outline_time,
+            "all loop count": loop_count,
+            "all search count": search_count,
+            "all data_agent_count": data_agent_count,
+            "answer length": len(answer)
+        }
+        console.print(f"\n=== STEP 3: ANSWERING ===\n{answer_json}")
+        log_event(f"\n=== STEP 3: ANSWERING ===\n{answer_json}")
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 3: ANSWERING ===\nglobal question: {question}\nuseful information:{str(useful_information_str)}\nfinal_answer: {answer}")
+            st.markdown(f"\n=== STEP 3: ANSWERING ===")
+            st.write(answer_json)
 
 
-        log_event(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}")
-        with st.chat_message("assistant"):
-            st.markdown(f"\n outline: {question}\n cost time: {outline_time}s\n loop count: {loop_count}\n search_count: {search_count}\n data_agent_count: {data_agent_count}\n answer length: {len(answer)}")
         return {"answer_to_question": answer, "retrieved_context": context, "useful_information": state['useful_information'], "question": question, "reasoning": validate_reasoning }
 
     async def find_missing_information(self, state: GraphState):
@@ -369,7 +409,7 @@ class QAAgent:
         data_agent_count = state["data_agent_count"]
 
         # 对missing_information进行fc
-        fc_querys = await self.fc(missing_information)
+        fc_querys, fc_querys_reasoning = await self.fc(missing_information)
         for item in fc_querys:
             if item['name'] == 'search':
                 search_count += 1
@@ -411,7 +451,7 @@ class QAAgent:
                 new_retrieved_search_content += f"<webPage {idx+1} begin>\n{web_page_content}\n\nlink:{r.get('url', '')}\n<webPage {idx+1} end>\n\n\n"
                 idx += 1
 
-        new_search_useful_info = await self.get_useful_info(question, new_retrieved_search_content)
+        new_search_useful_info, new_search_useful_info_reasoning = await self.get_useful_info(question, new_retrieved_search_content)
         #解析得到的{url, useful_information}
         try:
             new_search_useful_info = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", new_search_useful_info, re.DOTALL)[0])
@@ -431,10 +471,24 @@ class QAAgent:
         newly_retrieved_context_lst = str(new_results)
         newly_useful_info = str(new_useful_info)
 
-        console.print(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {newly_useful_info}")
-        log_event(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n{newly_retrieved_context_lst}\nNewly useful info: {newly_useful_info}")
+        miss_infor_json = {
+            "global question": question,
+            "Searching for missing": missing_information,
+            "fc_querys_reasoning": fc_querys_reasoning,
+            "fc_querys": fc_querys,
+            "Newly retrieved context": new_retrieved_context,
+            "Newly useful info reasoning": new_search_useful_info_reasoning,
+            "Newly useful info": new_useful_info,
+        }
+        miss_infor_json_brief = miss_infor_json.copy()
+        miss_infor_json_brief['Newly retrieved context'] = '...'
+
+        console.print(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\n{miss_infor_json_brief}")
+        log_event(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\n{miss_infor_json}")
+
         with st.chat_message("assistant"):
-            st.markdown(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===\nglobal question: {question}\nSearching for missing:{missing_information}\nfc_querys:{fc_querys}\nNewly retrieved context: \n...\nNewly useful info: {str([newly_useful_info])}")
+            st.markdown(f"\n=== STEP 2b: FINDING MISSING INFORMATION ===")
+            st.write(miss_infor_json_brief)
 
 
         combined_context = previously_retrieved_useful_information + new_useful_info
@@ -506,9 +560,14 @@ class QAAgent:
         answer = llm_output.choices[0].message.content.strip()
         answer = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", answer, re.DOTALL)[0])
 
-        console.print(f"\nInit Outlines:\n{str(answer)}")
-        log_event(f"\nInit Outlines:\n{str(answer)}")
-        return answer
+
+        outline_json = {
+            "outlines reasoning": reasoning,
+            "Init Outlines": answer
+        }
+        console.print(f"=== Outlines ====\n{outline_json}")
+        log_event(f"=== Outlines ====\n{outline_json}")
+        return answer, reasoning
     
     def get_final_report(self, outlines: list, results: list):
         assert len(outlines) == len(results)
@@ -556,14 +615,21 @@ class QAAgent:
 
         # 将所有result中的结果拼接起来
         polish_final_result = []
+        polish_final_reasoning = []
         for r in result:
             t_reasoning = r.choices[0].message.reasoning_content.strip()
             t_answer = r.choices[0].message.content.strip()
             polish_final_result.append(t_answer)
+            polish_final_reasoning.append(t_reasoning)
 
         polish_final_result = "\n\n".join(polish_final_result)
-        console.print(f"\n==== POLISH REPORT ====\n{polish_final_result}")
-        log_event(f"\n==== POLISH REPORT  ====\n{polish_final_result}")
+
+        polish_json = {
+            "polish report reasoning": str(polish_final_reasoning),
+            "polish report": polish_final_result
+        }
+        console.print(f"==== POLISH REPORT ====\n{polish_json}")
+        log_event(f"==== POLISH REPORT ====\n{polish_json}")
         return polish_final_result
     
     async def serial(self, question: str, outlines: list, reports: list):
@@ -632,12 +698,20 @@ class QAAgent:
 
             # already_writing = already_writing + f"{t_answer}\n\n"
             # sec_serial_final_result = t_answer
+
+            t_serial_json = {
+                "reasoning_path": reasoning_path,
+                "useful info": useful_information_str,
+                "section serial report reasoning": t_reasoning,
+                "section serial report": sec_serial_final_result
+            }
             with st.chat_message("assistant"):
-                st.markdown(f"==== SERIAL REPORT CONTINUE ====\nuseful info:{useful_information_str}\nsection serial report:{sec_serial_final_result}")
+                st.markdown(f"==== SERIAL REPORT CONTINUE ====")
+                st.write(t_serial_json)
 
 
-            console.print(f"==== SERIAL REPORT CONTINUE ====\nuseful info:{useful_information_str}\nsection serial report:{sec_serial_final_result}")
-            log_event(f"==== SERIAL REPORT CONTINUE ====\nuseful info:{useful_information_str}\nsection serial report:{sec_serial_final_result}")
+            console.print(f"==== SERIAL REPORT CONTINUE ====\n{t_serial_json}")
+            log_event(f"==== SERIAL REPORT CONTINUE ====\n{t_serial_json}")
         return already_writing
 
 
@@ -676,9 +750,14 @@ class QAAgent:
         reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
 
-        console.print(f"\n==== CONCLUSION ====\n{answer}")
-        log_event(f"\n==== CONCLUSION  ====\n{answer}")
-        return answer
+
+        conclusion_json = {
+            "conclusion reasoning": reasoning,
+            "conclusion": answer
+        }
+        console.print(f"\n==== CONCLUSION  ====\n{conclusion_json}")
+        log_event(f"\n==== CONCLUSION  ====\n{conclusion_json}")
+        return answer, reasoning
 
 
     async def run(self, question: str, writing_method: str = "parallel", polish_step: int = -1, max_outline_num: int = 8, max_loop: int = 5, feedback: str = "", feedback_answer: str = "", start_time: datetime = datetime.now()):     
@@ -696,11 +775,20 @@ class QAAgent:
         """
 
         with st.chat_message("assistant"):
-            st.markdown(f"==== CLARIFY ANSWER ====\nfeedback: {combined_query}\n")
+            st.markdown(f"==== CLARIFY ANSWER ====")
+            st.write(combined_query)
 
-        outlines = await self.gen_outline(combined_query, max_outline_num)
+        outlines, outlines_reasoning = await self.gen_outline(combined_query, max_outline_num)
+
+        outlines_json = {
+            "outlines reasoning": outlines_reasoning,
+            "Init Outlines": outlines
+        }
         with st.chat_message("assistant"):
-            st.markdown(f"Init Outlines:\n{str(outlines)}")
+            st.markdown(f"==== OUTLINES  ====")
+            st.write(outlines_json)
+
+
         outlines_lst = [f"请以‘{question}’为标题，‘{item['headings']}’为子标题，展开深度研究，研究目标为‘{item['research_goal']}’" for item in outlines]
 
         with st.chat_message("assistant"):
@@ -734,17 +822,28 @@ class QAAgent:
             
 
             # 添加一个结论
-            conclusion = await self.conclusion(question, parallel_final_report)
+            conclusion, conclusion_reasoing = await self.conclusion(question, parallel_final_report)
+            conclusion_json = {
+                "conclusion reasoning": conclusion_reasoing,
+                "conclusion": conclusion
+            }
             with st.chat_message("assistant"):
-                st.markdown(f"==== CONCLUSION ====\n{conclusion}")
+                st.markdown(f"==== CONCLUSION ====")
+                st.write(conclusion_json)
+
             parallel_final_report = parallel_final_report + f"\n\n{conclusion}"
 
         if "serial" in set(writing_method):
             serial_final_report = await self.serial(question, outlines, results)
 
-            conclusion = await self.conclusion(question, serial_final_report)
+            conclusion, conclusion_reasoing = await self.conclusion(question, serial_final_report)
+            conclusion_json = {
+                "conclusion reasoning": conclusion_reasoing,
+                "conclusion": conclusion
+            }
             with st.chat_message("assistant"):
-                st.markdown(f"==== CONCLUSION ====\n{conclusion}")
+                st.markdown(f"==== CONCLUSION ====")
+                st.write(conclusion_json)
             serial_final_report = serial_final_report + f"\n\n{conclusion}"
             # self.mermaid(final_report, add_str="SERIAL")
         
@@ -777,16 +876,16 @@ class QAAgent:
         log_file_name = question[:max_log_file_length]
         with open(f"output/{log_file_name}_{start_time.strftime('%Y%m%d%H%M%S')}.md", "w") as f:
             if "parallel" in set(writing_method):
-                f.write("\n\nparallel report\n\n")
+                f.write("=== parallel report ===")
                 f.write(parallel_final_report)
 
             if  "polish" in set(writing_method):
-                f.write("\n\npolish report\n\n")
+                f.write("=== polish report ===")
                 f.write(polish_final_report)
             
 
             if  "serial" in set(writing_method):
-                f.write("\n\nserial report\n\n")
+                f.write("=== serial report ===")
                 f.write(serial_final_report)
         
 

@@ -167,11 +167,13 @@ class Prompts:
         template="""
         You are a writing plan agent. Today is {now}.
         You will be provided with a question and a reflection list about the question.
-        Your role is to carefully look through the reflection list and generate a writing plan.
+        Your role is to carefully look through the reflection list and generate a writing plan in a section.
 
-        Here is the requirement of your writing plan:
-        - The writing plan is generated according to the reflection list and is used to guide subsequent writing
-        - Ignore the "missing information" in the reflection list, and only include what you have obtained and what you want to write in your writing plan
+        Here is the requirement of your section writing plan:
+        - The section writing plan is generated according to the reflection list and is used to guide current section writing.
+        - Ignore the "missing information" in the reflection list, and only include what you have obtained and what you want to write in your section writing plan
+        - Instead of generating a writing plan for the entire essay, focus on a single chapter.
+        - Please return as a string.
 
         The Question: {question}
         Reflection List: 
