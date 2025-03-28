@@ -96,6 +96,7 @@ def clean_logs(log_text):
 # 打印日志文件。 1.删除检索的原始信息；2.根据步骤进行划线
 def show_hist_log(show_file):
     show_file = f"logs/{show_file}.log"
+    output_file = f"output/{show_file}.md"
     try:
         with open(show_file, 'r', encoding='utf-8') as file:
             content = file.read()
@@ -134,3 +135,80 @@ def show_hist_log(show_file):
             content = f"读取记录 {show_file} 时出错: {e}"
             st.write(content)
         return
+    
+    try:
+        with open(output_file, 'r', encoding='utf-8') as file:
+                content = file.read()
+                with st.chat_message("assistant"):
+                    st.write("最终结果-----")
+                    st.divider()
+                    st.markdown(content)
+    except FileNotFoundError:
+        with st.chat_message("assistant"):
+            content = f"记录 {output_file} 未找到。"
+            st.markdown(content)
+        return
+    except Exception as e:
+        with st.chat_message("assistant"):
+            content = f"读取记录 {output_file} 时出错: {e}"
+            st.markdown(content)
+        return
+
+
+import requests
+from lxml import etree
+from urllib.parse import urlparse
+def get_baidu_pr(to_search_url):
+    """
+        网站的热点排名
+    """
+    domain = urlparse(to_search_url).netloc
+
+    url = "https://www.aizhan.com/cha/{}/".format(domain)
+
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'Accept-Language': 'en,zh-CN;q=0.9,zh;q=0.8,vi;q=0.7',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Pragma': 'no-cache',
+        'Referer': 'https://www.aizhan.com/',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1',
+        'sec-ch-ua': '"Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': 'linux',
+    }
+
+    response = requests.get(url=url, headers=headers)
+    lxml_tree = etree.HTML(response.text)
+    href_name = lxml_tree.xpath(
+        '//div[@id="webpage_title"]//text()')
+    
+    br = lxml_tree.xpath(
+        '//a[@id="baidurank_br"]//img//@alt')[0]
+    return int(br)
+
+
+
+BLACKLIST_URL = [
+    "baijiahao.baidu.com",
+    "news.qq.com",
+    "toutiao.com",
+    "news.sohu.com",
+    "news.163.com"
+    "weibo.com",
+    "news.baidu.com"
+]
+
+def filter_url_blacklist(response):
+    new_response = []
+    for t_response in response:
+        url_domain = urlparse(t_response['url']).netloc
+        if url_domain not in BLACKLIST_URL:
+            new_response.append(t_response)
+    return new_response

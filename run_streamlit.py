@@ -133,7 +133,6 @@ def main():
         agent = QAAgent(writing_method, model, data_eng)
         with st.chat_message("user"):
             st.markdown(user_input)
-        start_time = datetime.now()
         asyncio.run(agent.run(user_input_orig, writing_method=writing_method, polish_step=polish_step, max_outline_num=max_outline_num, max_loop=max_loop, feedback=feedback, feedback_answer=feedback_answer, start_time=start_time))
 
         st.session_state['input_type'] = ""

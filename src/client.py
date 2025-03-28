@@ -12,6 +12,7 @@ import httpx
 from src.da.basellm import *
 from src.da.prompts import *
 from src.da.agent_plus import *
+from src.utils import *
 
 class TableWithDescription():
     def __init__(self, table: pd.DataFrame, description:str, content:str):
@@ -137,7 +138,8 @@ class SearchClient:
             if response_dic.status_code == 200:
                 response = json.loads(response_dic.text)['data']
 
-
+                # 网站黑名单过滤
+                response = filter_url_blacklist(response)
                 response = sorted(response, key=lambda x: x['publish_time'] if x['publish_time'] else float("-inf"),reverse=True)
 
                 # 替换为serapi googlesearch的格式
