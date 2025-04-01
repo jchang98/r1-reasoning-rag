@@ -65,7 +65,6 @@ def get_ai_client(model) :
     # Decide which API key and endpoint to use
     if model.startswith("ep-") or model.startswith("deepseek"):
         service = "deepseek"
-        model = "ep-20250208165153-wn9ft"
     else:
         service = "openai"
 
@@ -103,7 +102,6 @@ def get_token_count(model, text: str) -> int:
 
     if model.startswith("ep-") or model.startswith("deepseek"):
         service = "deepseek"
-        model = "ep-20250208165153-wn9ft"
     else:
         service = "openai"
 
@@ -122,7 +120,6 @@ def get_token_count(model, text: str) -> int:
 async def generate_completions(client, model, messages, format=None):
     if model.startswith("ep-") or model.startswith("deepseek"):
         service = "deepseek"
-        model = "ep-20250208165153-wn9ft"
     else:
         service = "openai"
 
@@ -146,6 +143,7 @@ async def generate_completions(client, model, messages, format=None):
 
 # r1 = get_ai_client("ep-20250208165153-wn9ft")
 r1 = get_ai_client("deepseek-r1-250120")
+v3 = get_ai_client("deepseek-v3-250324")
 
 # r1 = ChatNVIDIA(model="ep-20250208165153-wn9ft",
 #                 api_key=os.getenv("DEEPSEEK_API_KEY"), 

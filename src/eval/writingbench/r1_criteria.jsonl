@@ -1,0 +1,252 @@
+[
+    {
+        "query": "2027年中国会打台湾嘛？",
+        "criteria": [
+            {
+                "name": "Relevance and Context Adherence",
+                "criteria_description": "Assesses how closely the response addresses the specific query about China's potential military action against Taiwan in 2027, including geopolitical context and timeframe alignment.",
+                "1-2": "Irrelevant or completely ignores the 2027 timeframe and Taiwan-China context.",
+                "3-4": "Tangentially related but lacks focus on the core query or misinterprets key terms.",
+                "5-6": "Partially addresses the query but with gaps in contextual or temporal specificity.",
+                "7-8": "Mostly relevant but occasionally drifts into broader China-Taiwan issues without fully anchoring to 2027.",
+                "9-10": "Precisely addresses the query with explicit focus on 2027 and its geopolitical implications."
+            },
+            {
+                "name": "Coherence and Logical Structure",
+                "criteria_description": "Evaluates the clarity, flow, and logical progression of arguments supporting the response's conclusion.",
+                "1-2": "Disjointed or contradictory arguments with no discernible structure.",
+                "3-4": "Weak logical flow; ideas are loosely connected or repetitive.",
+                "5-6": "Basic structure present but transitions between points are abrupt or underdeveloped.",
+                "7-8": "Mostly coherent with minor inconsistencies in argumentation.",
+                "9-10": "Flawless logical progression with seamless transitions and well-supported reasoning."
+            },
+            {
+                "name": "Depth and Analytical Rigor",
+                "criteria_description": "Measures the thoroughness of analysis, including consideration of historical precedents, military indicators, political rhetoric, and expert opinions.",
+                "1-2": "Superficial treatment lacking any substantive analysis.",
+                "3-4": "Limited exploration of factors; relies on clichés or oversimplified assumptions.",
+                "5-6": "Moderate depth but misses key dimensions (e.g., economic sanctions, U.S. involvement).",
+                "7-8": "Detailed analysis with minor omissions in secondary factors (e.g., regional alliances).",
+                "9-10": "Comprehensive examination of all relevant angles, including nuanced scenarios and counterarguments."
+            },
+            {
+                "name": "Specificity and Evidence Use",
+                "criteria_description": "Assesses the inclusion of concrete data, verifiable sources, and specific examples to substantiate claims.",
+                "1-2": "Entirely anecdotal or unsupported by evidence.",
+                "3-4": "Minimal evidence cited; sources are vague or uncorroborated.",
+                "5-6": "Some specific examples but lacks diversity in sourcing or fails to quantify risks.",
+                "7-8": "Strong use of evidence with occasional gaps in source credibility or recency.",
+                "9-10": "Authoritative sources (e.g., defense white papers, expert forecasts) integrated seamlessly to validate claims."
+            },
+            {
+                "name": "Balance and Objectivity",
+                "criteria_description": "Examines whether the response acknowledges uncertainties, avoids bias, and presents multiple plausible outcomes.",
+                "1-2": "Extremely biased or propagandistic; dismisses alternative perspectives.",
+                "3-4": "Leans heavily toward one narrative without justifying exclusion of counterpoints.",
+                "5-6": "Acknowledges multiple viewpoints but unevenly weights their likelihood.",
+                "7-8": "Balanced treatment with minor overemphasis on specific scenarios.",
+                "9-10": "Neutral, nuanced stance that explicitly quantifies uncertainties and contextualizes all claims."
+            }
+        ]
+    },
+    {
+        "query": "2027年中国会打台湾嘛？",
+        "criteria": [
+            {
+                "name": "Geopolitical Context Adherence",
+                "criteria_description": "Assesses how well the response aligns with established geopolitical policies, historical context, and China's official stance on Taiwan.",
+                "1-2": "Ignores or misrepresents China's official policies and historical context; includes speculative or inflammatory claims.",
+                "3-4": "Mentions basic policies but lacks depth or misinterprets key historical or political nuances.",
+                "5-6": "Covers official stances and historical context adequately but with minimal analysis or minor inaccuracies.",
+                "7-8": "Accurately integrates policies and history, with coherent analysis but limited exploration of subtler implications.",
+                "9-10": "Comprehensive, nuanced alignment with geopolitical realities, including historical precedents and policy nuances."
+            },
+            {
+                "name": "Response Relevance and Focus",
+                "criteria_description": "Evaluates whether the response directly addresses the query about the likelihood of conflict in 2027, avoiding tangents or overgeneralization.",
+                "1-2": "Wholly irrelevant or diverted to unrelated topics; fails to engage with the query.",
+                "3-4": "Partially addresses the query but includes significant off-topic content or vague assertions.",
+                "5-6": "Generally on-topic but lacks specificity about 2027 or China-Taiwan dynamics.",
+                "7-8": "Focused and relevant, with minor lapses in specificity or temporal context.",
+                "9-10": "Precisely addresses the 2027 timeframe and China-Taiwan tensions with no irrelevant content."
+            },
+            {
+                "name": "Analytical Depth and Specificity",
+                "criteria_description": "Measures the depth of analysis, including consideration of military, economic, diplomatic, and domestic factors influencing the scenario.",
+                "1-2": "Superficial or overly simplistic; lacks concrete factors or evidence.",
+                "3-4": "Identifies basic factors but lacks elaboration or connection to 2027.",
+                "5-6": "Covers multiple relevant factors but with limited analysis of interdependencies.",
+                "7-8": "Detailed analysis of key drivers, though some nuances or secondary factors are overlooked.",
+                "9-10": "Exhaustive exploration of interconnected factors, supported by historical or contemporary examples."
+            },
+            {
+                "name": "Logical Coherence and Structure",
+                "criteria_description": "Assesses the clarity, logical flow, and organization of arguments within the response.",
+                "1-2": "Disjointed or contradictory arguments; no clear structure.",
+                "3-4": "Partial structure but with gaps in logic or abrupt transitions.",
+                "5-6": "Generally logical but with minor inconsistencies or repetitive points.",
+                "7-8": "Well-structured and coherent, with only slight lapses in argumentative flow.",
+                "9-10": "Flawlessly logical progression; ideas are interconnected and build toward a conclusive analysis."
+            },
+            {
+                "name": "Balanced Perspective and Objectivity",
+                "criteria_description": "Evaluates whether the response acknowledges multiple viewpoints (e.g., Chinese, Taiwanese, international) without bias or sensationalism.",
+                "1-2": "Overtly biased or one-sided; dismisses alternative perspectives entirely.",
+                "3-4": "Acknowledges other viewpoints superficially but prioritizes a single narrative.",
+                "5-6": "Presents multiple angles but with uneven depth or implicit bias.",
+                "7-8": "Mostly balanced analysis, though some perspectives lack full exploration.",
+                "9-10": "Comprehensively objective, integrating diverse viewpoints with equal rigor and neutrality."
+            }
+        ]
+    },
+    {
+        "query": "2027年中国会打台湾嘛？",
+        "criteria": [
+            {
+                "name": "Relevance to Query Context",
+                "criteria_description": "Assesses how directly and fully the response addresses the specific question about China's potential military action against Taiwan in 2027.",
+                "1-2": "Completely off-topic or ignores the temporal (2027) and geopolitical (China-Taiwan) context.",
+                "3-4": "Tangentially related but misses key elements of the query (timeframe or actors).",
+                "5-6": "Addresses the core topic but lacks focus on critical aspects like timeframe or causality.",
+                "7-8": "Covers main elements adequately with minor gaps in contextual precision.",
+                "9-10": "Precisely focused on 2027 China-Taiwan dynamics with explicit temporal and geopolitical alignment."
+            },
+            {
+                "name": "Coherence and Logical Structure",
+                "criteria_description": "Evaluates the clarity of argumentation and logical flow in presenting causal relationships or evidence.",
+                "1-2": "Disjointed reasoning with no clear structure or progression of ideas.",
+                "3-4": "Partial organization but contains significant leaps in logic or unsupported claims.",
+                "5-6": "Generally logical but with occasional gaps in connecting evidence to conclusions.",
+                "7-8": "Well-structured arguments with minor inconsistencies in causal explanations.",
+                "9-10": "Flawless logical progression with explicit linkages between evidence, analysis, and conclusions."
+            },
+            {
+                "name": "Depth of Analysis and Insight",
+                "criteria_description": "Measures the sophistication in addressing historical context, political nuances, and potential scenarios.",
+                "1-2": "Superficial treatment lacking any historical or strategic analysis.",
+                "3-4": "Basic recognition of key factors without meaningful exploration.",
+                "5-6": "Moderate analysis of motivations and constraints but lacks multi-perspective evaluation.",
+                "7-8": "Detailed examination of political, military, and economic dimensions with some originality.",
+                "9-10": "Masterful integration of cross-domain insights and novel scenario modeling."
+            },
+            {
+                "name": "Use of Specific Evidence and Examples",
+                "criteria_description": "Assesses the integration of concrete data, historical precedents, or authoritative sources.",
+                "1-2": "Entirely anecdotal or devoid of verifiable references.",
+                "3-4": "Limited evidence with weak relevance to the 2027 timeframe.",
+                "5-6": "Appropriate examples cited but without contextual analysis.",
+                "7-8": "Strong evidence base with clear connections to argumentation.",
+                "9-10": "Expert deployment of historical parallels, current military postures, and diplomatic statements."
+            },
+            {
+                "name": "Adherence to Geopolitical Sensitivity and Neutrality",
+                "criteria_description": "Evaluates balanced treatment of cross-strait complexities and avoidance of inflammatory language.",
+                "1-2": "Blatant bias or use of propagandistic terminology from either perspective.",
+                "3-4": "Noticeable slant in framing without overt hostility.",
+                "5-6": "Neutral tone but oversimplifies sensitive issues like sovereignty claims.",
+                "7-8": "Generally objective with careful distinction between facts and interpretations.",
+                "9-10": "Diplomatically nuanced analysis acknowledging multiple stakeholders' legitimate concerns."
+            }
+        ]
+    },
+    {
+        "query": "2027年中国会打台湾嘛？",
+        "criteria": [
+            {
+                "name": "Relevance to Query",
+                "criteria_description": "Assesses how directly and fully the response addresses the specific question about China's potential military action against Taiwan in 2027, including implicit geopolitical context.",
+                "1-2": "Irrelevant or tangential; ignores the 2027 timeline or conflates Taiwan with other geopolitical issues.",
+                "3-4": "Partially addresses the query but lacks focus on the 2027 context or China-Taiwan specifics.",
+                "5-6": "Generally on-topic but omits key elements (e.g., historical tensions, recent military posturing).",
+                "7-8": "Covers the query comprehensively but with minor gaps in contextual linkages.",
+                "9-10": "Directly engages all aspects of the query, including nuanced geopolitical dynamics and timeline implications."
+            },
+            {
+                "name": "Coherence and Logical Structure",
+                "criteria_description": "Evaluates the clarity of argumentation, logical flow between claims, and avoidance of contradictions.",
+                "1-2": "Disjointed or incoherent; arguments lack logical progression or contradict themselves.",
+                "3-4": "Partial structure with unclear transitions between ideas; some repetitive or circular reasoning.",
+                "5-6": "Generally logical but with weak causal linkages or underdeveloped supporting points.",
+                "7-8": "Strong logical flow with minor gaps in connecting evidence to conclusions.",
+                "9-10": "Seamlessly structured with explicit causal reasoning and evidence-based conclusions."
+            },
+            {
+                "name": "Depth of Analysis",
+                "criteria_description": "Measures the sophistication of insights into military, political, and economic drivers of cross-strait tensions.",
+                "1-2": "Superficial treatment; relies on clichés or unsubstantiated claims.",
+                "3-4": "Identifies basic factors (e.g., 'China's territorial claims') without contextual depth.",
+                "5-6": "Explores multiple dimensions (e.g., U.S. involvement, domestic Chinese politics) at surface level.",
+                "7-8": "Detailed analysis of escalation scenarios and historical precedents with minor oversights.",
+                "9-10": "Masterful integration of geopolitical theory, military strategy, and socio-economic variables."
+            },
+            {
+                "name": "Specificity and Evidence Integration",
+                "criteria_description": "Assesses use of concrete examples, data, and authoritative sources to substantiate claims.",
+                "1-2": "Entirely vague; no references to policies, military capabilities, or expert opinions.",
+                "3-4": "Occasional named examples (e.g., '2023 military drills') without analytical depth.",
+                "5-6": "Supports claims with basic evidence but lacks source diversity or critical evaluation.",
+                "7-8": "Uses multiple high-quality sources (e.g., CSIS reports, PLA white papers) with minor citation gaps.",
+                "9-10": "Demonstrates mastery through precise data, treaty citations, and comparative military analyses."
+            },
+            {
+                "name": "Contextual Sensitivity and Neutrality",
+                "criteria_description": "Evaluates awareness of the topic's sensitivity and avoidance of inflammatory or biased language.",
+                "1-2": "Uses provocative terminology (e.g., 'invasion') or exhibits clear political bias.",
+                "3-4": "Acknowledges sensitivity superficially but includes unexamined assumptions.",
+                "5-6": "Generally neutral tone but with occasional lapses in diplomatic phrasing.",
+                "7-8": "Balanced analysis that carefully distinguishes facts from speculative scenarios.",
+                "9-10": "Exemplary diplomatic nuance; contextualizes claims within international law and cross-strait dialogue frameworks."
+            }
+        ]
+    },
+    {
+        "query": "2027年中国会打台湾嘛？",
+        "criteria": [
+            {
+                "name": "Relevance and Contextual Adherence",
+                "criteria_description": "Assesses how well the response addresses the specific query about China's potential military action against Taiwan in 2027, avoiding tangential or unrelated content.",
+                "1-2": "Response is irrelevant, speculative without basis, or ignores the geopolitical context of cross-strait relations.",
+                "3-4": "Partially addresses the query but includes significant off-topic content or oversimplifies the context.",
+                "5-6": "Generally relevant but lacks nuance or fails to fully anchor the analysis in the 2027 timeframe.",
+                "7-8": "Mostly relevant, with clear ties to the query and contextual factors (e.g., historical policies, regional tensions).",
+                "9-10": "Directly and comprehensively addresses the query, integrating precise context (e.g., China's official stance, Taiwan's status, and regional dynamics)."
+            },
+            {
+                "name": "Coherence and Logical Structure",
+                "criteria_description": "Evaluates the clarity, organization, and logical flow of the response, ensuring arguments are interconnected and conclusions are supported.",
+                "1-2": "Disjointed or illogical structure; arguments are contradictory or lack progression.",
+                "3-4": "Partial coherence but with gaps in reasoning or abrupt shifts in focus.",
+                "5-6": "Adequately structured but may have minor inconsistencies or repetitive points.",
+                "7-8": "Logical flow with well-connected ideas, though some sections could be tighter.",
+                "9-10": "Flawless structure; arguments build systematically, leading to a well-supported conclusion."
+            },
+            {
+                "name": "Depth and Analytical Rigor",
+                "criteria_description": "Measures the thoroughness of analysis, including consideration of political, military, economic, and diplomatic dimensions.",
+                "1-2": "Superficial or one-dimensional analysis; relies on clichés or unsubstantiated claims.",
+                "3-4": "Limited exploration of factors; overlooks key stakeholders (e.g., U.S. role, Taiwanese public opinion).",
+                "5-6": "Moderate depth, covering major angles but lacking originality or critical insight.",
+                "7-8": "Detailed analysis with multiple perspectives (e.g., PLA capabilities, global reactions) and credible evidence.",
+                "9-10": "Comprehensive, nuanced examination integrating historical precedents, risk assessment, and scenario-based reasoning."
+            },
+            {
+                "name": "Specificity and Evidence-Based Support",
+                "criteria_description": "Assesses the use of concrete examples, data, or authoritative sources to substantiate claims.",
+                "1-2": "Vague assertions dominate; no supporting evidence or sources cited.",
+                "3-4": "Minimal use of examples or data; sources are outdated or non-authoritative.",
+                "5-6": "Some specific references (e.g., Chinese defense white papers) but lacks diversity in evidence.",
+                "7-8": "Strong evidence base with varied sources (e.g., expert analyses, policy documents, historical trends).",
+                "9-10": "Richly detailed, with precise data (e.g., military budgets, diplomatic statements) and scholarly citations."
+            },
+            {
+                "name": "Adherence to Geopolitical Sensitivity",
+                "criteria_description": "Evaluates whether the response acknowledges the complexity and sensitivity of cross-strait issues without bias or inflammatory language.",
+                "1-2": "Biased, inflammatory, or dismissive of Taiwan's agency or international law considerations.",
+                "3-4": "Overly simplistic or culturally insensitive; fails to address diplomatic nuances.",
+                "5-6": "Neutral tone but lacks awareness of subtleties (e.g., Taiwan's domestic politics).",
+                "7-8": "Balanced and tactful, recognizing multiple stakeholders and potential escalation risks.",
+                "9-10": "Masterfully navigates sensitivities, incorporating legal frameworks (e.g., UN Resolution 2758) and ethical implications."
+            }
+        ]
+    }
+]

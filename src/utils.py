@@ -80,7 +80,7 @@ def parse_file_names(file_names):
 
 def clean_logs(log_text):
     # 正则表达式模式，匹配ERROR和WARNING日志及其堆栈信息
-    pattern = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} - .+? - (?:ERROR|WARNING) - .+?(?=\n^\d{4}-\d{2}-\d{2} |\Z)'
+    pattern = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} - asyncio - (?:ERROR|WARNING) - .+?(?=\n^\d{4}-\d{2}-\d{2} |\Z)'
     
     # 使用re.MULTILINE匹配多行，re.DOTALL让.匹配换行符
     cleaned_text = re.sub(
@@ -95,10 +95,10 @@ def clean_logs(log_text):
 
 # 打印日志文件。 1.删除检索的原始信息；2.根据步骤进行划线
 def show_hist_log(show_file):
-    show_file = f"logs/{show_file}.log"
+    log_file = f"logs/{show_file}.log"
     output_file = f"output/{show_file}.md"
     try:
-        with open(show_file, 'r', encoding='utf-8') as file:
+        with open(log_file, 'r', encoding='utf-8') as file:
             content = file.read()
             content = clean_logs(content)
 
@@ -127,12 +127,12 @@ def show_hist_log(show_file):
                     st.write(block)
     except FileNotFoundError:
         with st.chat_message("assistant"):
-            content = f"记录 {show_file} 未找到。"
+            content = f"记录 {log_file} 未找到。"
             st.write(content)
         return
     except Exception as e:
         with st.chat_message("assistant"):
-            content = f"读取记录 {show_file} 时出错: {e}"
+            content = f"读取记录 {log_file} 时出错: {e}"
             st.write(content)
         return
     

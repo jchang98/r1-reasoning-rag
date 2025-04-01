@@ -6,7 +6,7 @@ from src.utils import *
 from dotenv import load_dotenv
 import os
 from src.prompts import Prompts
-from src.llm import r1, get_r1_ask
+from src.llm import r1, v3, get_r1_ask
 from src.logging import log_event, initial_logger
 from src.utils import console
 from src.mindmap_graph import *
@@ -65,8 +65,15 @@ async def get_feedback(question: str , model: str = "deepseek-r1-ths", start_tim
         llm_output = await r1.chat.completions.create(
             model="deepseek-r1-250120", messages=messages
         )
+    elif model == "deepseek-v3-vol":
+        llm_output = await v3.chat.completions.create(
+            model="deepseek-v3-250324", messages=messages
+        )
     
-    reasoning = llm_output.choices[0].message.reasoning_content.strip()
+    if model == "deepseek-v3-vol":
+        reasoning = ""
+    else:
+        reasoning = llm_output.choices[0].message.reasoning_content.strip()
     response = llm_output.choices[0].message.content.strip()
 
 
@@ -87,11 +94,12 @@ async def get_feedback(question: str , model: str = "deepseek-r1-ths", start_tim
 
 
 class QAAgent:
-    def __init__(self, writing_method: str = "parallel", model: str = "deepseek-r1-ths", data_eng: str = "ifind_data"):
+    def __init__(self, writing_method: str = "parallel", model: str = "deepseek-r1-ths", writing_model: str = "deepseek-v3-ths", data_eng: str = "ifind_data"):
         self.data_client = DataClient()
         self.tavily_client = SearchClient()
         self.workflow = self.create_workflow(writing_method)
         self.model = model
+        self.writing_model = writing_model
         self.data_eng = data_eng
         # self.outline2maxloop = 0
 
@@ -99,7 +107,10 @@ class QAAgent:
     async def fc(self, question):
         # 根据question生成fc_querys                 
         
-        prompt = Prompts.GEN_FC_QUERY.invoke({"question": question, "now": now}).text
+        if self.data_eng == "none":
+            prompt = Prompts.GEN_FC_QUERY_NO_DATA.invoke({"question": question, "now": now}).text
+        else:
+            prompt = Prompts.GEN_FC_QUERY.invoke({"question": question, "now": now}).text
         messages = [
             {"role": "user", "content": prompt}
         ]
@@ -110,8 +121,15 @@ class QAAgent:
             llm_output = await r1.chat.completions.create(
                 model="deepseek-r1-250120", messages=messages
             )
+        elif self.model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
         
-        reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        if self.model == "deepseek-v3-vol":
+            reasoning = ""
+        else:
+            reasoning = llm_output.choices[0].message.reasoning_content.strip()
         response = llm_output.choices[0].message.content.strip()
         try:
             response = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", response, re.DOTALL)[0])
@@ -135,7 +153,15 @@ class QAAgent:
             llm_output = await r1.chat.completions.create(
                 model="deepseek-r1-250120", messages=messages
             )
-        reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        elif self.model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
+        
+        if self.model == "deepseek-v3-vol":
+            reasoning = ""
+        else:
+            reasoning = llm_output.choices[0].message.reasoning_content.strip()
         response = llm_output.choices[0].message.content.strip()
         return response, reasoning
         
@@ -265,8 +291,15 @@ class QAAgent:
             llm_output = await r1.chat.completions.create(
                 model="deepseek-r1-250120", messages=messages
             )
+        elif self.model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
         
-        cur_reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        if self.model == "deepseek-v3-vol":
+            cur_reasoning = ""
+        else:
+            cur_reasoning = llm_output.choices[0].message.reasoning_content.strip()
         response = llm_output.choices[0].message.content.strip()
         # print("reasoning:", reasoning)
 
@@ -335,6 +368,15 @@ class QAAgent:
             llm_output = await r1.chat.completions.create(
                 model="deepseek-r1-250120", messages=messages
             )
+        elif self.model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
+        
+        if self.model == "deepseek-v3-vol":
+            reasoning_path_reason = ""
+        else:
+            reasoning_path_reason = llm_output.choices[0].message.reasoning_content.strip()
         reasoning_path = llm_output.choices[0].message.content.strip() 
 
         useful_information_str = ""
@@ -358,14 +400,21 @@ class QAAgent:
         ]
         
 
-        if self.model == "deepseek-r1-ths":
+        if self.writing_model == "deepseek-r1-ths":
             llm_output = await get_r1_ask(messages)
-        elif self.model == "deepseek-r1-vol":
+        elif self.writing_model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
                 model="deepseek-r1-250120", messages=messages
             )
-
-        reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        elif self.writing_model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
+        
+        if self.writing_model == "deepseek-v3-vol":
+            reasoning = ""
+        else:
+            reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
 
         # 删除answer中可能包含的标题
@@ -382,6 +431,7 @@ class QAAgent:
         answer_json = {
             "golobal question": question,
             "useful information": useful_information_str,
+            "reasoning_path_reason": reasoning_path_reason,
             "reasoning_path": reasoning_path,
             "final_answer_reasoning": reasoning,
             "final_answer": answer,
@@ -409,7 +459,8 @@ class QAAgent:
         data_agent_count = state["data_agent_count"]
 
         # 对missing_information进行fc
-        fc_querys, fc_querys_reasoning = await self.fc(missing_information)
+        missing_information_query = f"{question}\n\n当前遗漏的信息为：{missing_information}\n\n请根据当前遗漏的信息，生成新的搜索查询问句。"
+        fc_querys, fc_querys_reasoning = await self.fc(missing_information_query)
         for item in fc_querys:
             if item['name'] == 'search':
                 search_count += 1
@@ -556,7 +607,15 @@ class QAAgent:
             llm_output = await r1.chat.completions.create(
                 model="deepseek-r1-250120", messages=messages
             )
-        reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        elif self.model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
+        
+        if self.model == "deepseek-v3-vol":
+            reasoning = ""
+        else:
+            reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
         answer = eval(re.findall(r"```(?:json)?\s*(.*?)\s*```", answer, re.DOTALL)[0])
 
@@ -605,9 +664,17 @@ class QAAgent:
 
         # 定义异步处理函数
         async def process_polish(messages):
-            return await r1.chat.completions.create(
-                model="deepseek-r1-250120", messages=messages
-            )
+            if self.writing_model == "deepseek-r1-ths":
+                return await get_r1_ask(messages)
+            elif self.writing_model == "deepseek-r1-vol":
+                return await r1.chat.completions.create(
+                    model="deepseek-r1-250120", messages=messages
+                )
+            elif self.writing_model == "deepseek-v3-vol":
+                return await v3.chat.completions.create(
+                    model="deepseek-v3-250324", messages=messages
+                )
+
         
         # 使用异步并行处理
         result = await async_parallel_process(polish_prompt_lsts, process_polish)
@@ -656,6 +723,15 @@ class QAAgent:
                 llm_output = await r1.chat.completions.create(
                     model="deepseek-r1-250120", messages=messages
                 )
+            elif self.model == "deepseek-v3-vol":
+                llm_output = await v3.chat.completions.create(
+                    model="deepseek-v3-250324", messages=messages
+                )
+
+            if self.model == "deepseek-v3-vol":
+                reasoning_path_reason = ""
+            else:
+                reasoning_path_reason = llm_output.choices[0].message.reasoning_content.strip()
             reasoning_path = llm_output.choices[0].message.content.strip() 
 
             useful_information_str = ""
@@ -676,14 +752,21 @@ class QAAgent:
                 {"role": "user", "content": prompt}
             ]
 
-            if self.model == "deepseek-r1-ths":
+            if self.writing_model == "deepseek-r1-ths":
                 llm_output = await get_r1_ask(messages)
-            elif self.model == "deepseek-r1-vol":
+            elif self.writing_model == "deepseek-r1-vol":
                 llm_output = await r1.chat.completions.create(
                     model="deepseek-r1-250120", messages=messages
                 )
+            elif self.writing_model == "deepseek-v3-vol":
+                llm_output = await v3.chat.completions.create(
+                    model="deepseek-v3-250324", messages=messages
+                )
 
-            t_reasoning = llm_output.choices[0].message.reasoning_content.strip()
+            if self.writing_model == "deepseek-v3-vol":
+                t_reasoning = ""
+            else:
+                t_reasoning = llm_output.choices[0].message.reasoning_content.strip()
             t_answer = llm_output.choices[0].message.content.strip()
 
             # 删除t_answer中可能包含的标题
@@ -700,6 +783,7 @@ class QAAgent:
             # sec_serial_final_result = t_answer
 
             t_serial_json = {
+                "reasoning_path_reason": reasoning_path_reason,
                 "reasoning_path": reasoning_path,
                 "useful info": useful_information_str,
                 "section serial report reasoning": t_reasoning,
@@ -740,14 +824,21 @@ class QAAgent:
             {"role": "user", "content": prompt}
         ]
 
-        if self.model == "deepseek-r1-ths":
+        if self.writing_model == "deepseek-r1-ths":
             llm_output = await get_r1_ask(messages)
-        elif self.model == "deepseek-r1-vol":
+        elif self.writing_model == "deepseek-r1-vol":
             llm_output = await r1.chat.completions.create(
                 model="deepseek-r1-250120", messages=messages
             )
+        elif self.writing_model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
 
-        reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        if self.writing_model == "deepseek-v3-vol":
+            reasoning = ""
+        else:
+            reasoning = llm_output.choices[0].message.reasoning_content.strip()
         answer = llm_output.choices[0].message.content.strip()
 
 

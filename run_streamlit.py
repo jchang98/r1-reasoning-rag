@@ -63,8 +63,9 @@ def main():
     remove_if_exist(f"{WORKING_DIR}/kv_store_community_reports.json")
     remove_if_exist(f"{WORKING_DIR}/graph_chunk_entity_relation.graphml")
 
-    model = st.sidebar.selectbox('选择模型', ['deepseek-r1-vol', 'deepseek-r1-ths'])
-    data_eng = st.sidebar.selectbox('数据引擎', ['ifind_data', 'ifind_data_agent'])
+    model = st.sidebar.selectbox('选择模型（除写作外）', ['deepseek-r1-vol', 'deepseek-v3-vol', 'deepseek-r1-ths'])
+    writing_model = st.sidebar.selectbox('选择写作模型', ['deepseek-v3-vol', 'deepseek-r1-vol', 'deepseek-r1-ths'])
+    data_eng = st.sidebar.selectbox('数据引擎', ['none', 'ifind_data', 'ifind_data_agent'])
     # writing_method = st.sidebar.selectbox('生成方式', ["parallel", "polish", "serial"]) # 并行生成，润色，串行生成
     writing_method = st.sidebar.multiselect('生成方式', ["parallel", "polish", "serial"]) # 并行生成，润色，串行生成
     if writing_method == "polish":
@@ -130,7 +131,7 @@ def main():
         start_time = st.session_state['start_time']
 
 
-        agent = QAAgent(writing_method, model, data_eng)
+        agent = QAAgent(writing_method, model, writing_model, data_eng)
         with st.chat_message("user"):
             st.markdown(user_input)
         asyncio.run(agent.run(user_input_orig, writing_method=writing_method, polish_step=polish_step, max_outline_num=max_outline_num, max_loop=max_loop, feedback=feedback, feedback_answer=feedback_answer, start_time=start_time))
