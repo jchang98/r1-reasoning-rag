@@ -4,7 +4,6 @@ import asyncio
 import networkx as nx
 import os
 
-
 console = Console()
     
 
@@ -212,3 +211,4 @@ def filter_url_blacklist(response):
         if url_domain not in BLACKLIST_URL:
             new_response.append(t_response)
     return new_response
+

@@ -29,6 +29,58 @@ MAX_LOOP_COUNT = 5
 date_format = "%Y-%m-%d %H:%M:%S"
 
 max_log_file_length = 100
+
+
+import io, sys
+import signal
+import traceback
+import concurrent.futures
+def run_python_code(code, timeout_duration=5):
+    """异步执行Python代码并设置超时"""
+    output = io.StringIO()
+    old_stdout = sys.stdout
+    
+    try:
+        sys.stdout = output
+        
+        # 创建一个新的globals字典，包含当前环境的所有内容
+        exec_globals = globals().copy()
+        
+        # 确保有基本的内置函数
+        exec_globals.update({
+            '__builtins__': __builtins__,
+            '__name__': '__main__',
+            '__file__': '__dynamic__',
+        })
+        
+        # 预先导入可能需要的包
+        try:
+            import pandas as pd
+            import numpy as np
+            import talib
+            import scipy
+            import statsmodels
+            import arch
+            exec_globals['pd'] = pd
+            exec_globals['np'] = np
+            exec_globals['talib'] = talib
+            exec_globals['scipy'] = scipy
+            exec_globals['statsmodels'] = statsmodels
+            exec_globals['arch'] = arch
+        except ImportError:
+            pass
+            
+
+        try:
+            # 使用exec_globals作为执行环境
+            exec(code, exec_globals)
+            result = output.getvalue()
+            return result
+        except Exception as e:
+            return f"Error: {str(e)}\n{traceback.format_exc()}"
+    finally:
+        sys.stdout = old_stdout
+        output.close()
    
 class GraphState(TypedDict):
     question: str
@@ -82,7 +134,7 @@ async def get_feedback(question: str , model: str = "deepseek-r1-ths", start_tim
         "clarify reasoning": reasoning,
         "feedback": response
     }
-    console.print(f"==== CLARIFY ====\n{clarify_json}")
+    # console.print(f"==== CLARIFY ====\n{clarify_json}")
     log_event(f"==== CLARIFY ====\n{clarify_json}")
 
     with st.chat_message("user").container():
@@ -165,7 +217,28 @@ class QAAgent:
         response = llm_output.choices[0].message.content.strip()
         return response, reasoning
         
-
+    async def get_data_analyze(self, question, data_info):
+        # 进行数据分析
+        prompt = Prompts.DATA_ANALYZE.invoke({"data_info": data_info, "question": question, "now": now}).text
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+        if self.model == "deepseek-r1-ths":
+            llm_output = await get_r1_ask(messages)
+        elif self.model == "deepseek-r1-vol":
+            llm_output = await r1.chat.completions.create(
+                model="deepseek-r1-250120", messages=messages
+            )
+        elif self.model == "deepseek-v3-vol":
+            llm_output = await v3.chat.completions.create(
+                model="deepseek-v3-250324", messages=messages
+            )
+        if self.model == "deepseek-v3-vol":
+            reasoning = ""
+        else:
+            reasoning = llm_output.choices[0].message.reasoning_content.strip()
+        response = llm_output.choices[0].message.content.strip()
+        return response, reasoning
 
     async def retrieve(self, state: GraphState):
         outline_start_time = datetime.now().strftime(date_format)
@@ -189,7 +262,23 @@ class QAAgent:
                 return await self.tavily_client.search(q["question"])
             else:
                 if self.data_eng == "ifind_data":
-                    return await self.data_client.ifind_data(q["question"])
+                    result =  await self.data_client.ifind_data(q["question"])
+                    data_info_lst = [self.get_data_analyze(item['content'][:4000], item['query']) for item in result if item.get("type") == "index"]
+                    data_info_res = await asyncio.gather(*data_info_lst)
+                    data_info_code = [re.findall(r"```(?:python)?\s*(.*?)\s*```", t[0] ,re.DOTALL)[0] for t in data_info_res]
+
+                    data_info_code_res = [run_python_code(code) for code in data_info_code]
+                    console.print("=== data info code res ===", data_info_code_res)
+
+                    new_result = []
+                    for t, t_data in zip(result, data_info_code_res):
+                        if "error" in t_data.lower():
+                            continue
+
+                        t['old_content'] = t['content']
+                        t['content'] = t_data
+                        new_result.append(t)
+                    return new_result
                 elif self.data_eng == "ifind_data_agent":
                     return await self.data_client.ifind_data_agent(q["question"])
 
@@ -202,6 +291,7 @@ class QAAgent:
             retrieved_context.append({
                 "type": r.get("type", ""),
                 "content": r.get('content', '')[:4000],
+                "old_content": r.get('old_content', '')[:4000],
                 "url": r.get('url', ''),
             })
 
@@ -228,7 +318,7 @@ class QAAgent:
             useful_info.append({"url": item["url"], "content": item["useful_information"][:4000]})
         for item in result:
             if item.get("type") == "index":
-                useful_info.append({"url": item.get("url", ""), "content": item.get("content", "")[:4000]})
+                useful_info.append({"url": item.get("url", ""), "content": item.get("content", "")[:4000], "old_content": item.get("old_content", "")[:4000]})
 
 
         retrieve_json = {
@@ -473,7 +563,23 @@ class QAAgent:
                 return await self.tavily_client.search(q["question"])
             else:
                 if self.data_eng == "ifind_data":
-                    return await self.data_client.ifind_data(q["question"])
+                    result =  await self.data_client.ifind_data(q["question"])
+                    data_info_lst = [self.get_data_analyze(item['content'][:4000], item['query']) for item in result if item.get("type") == "index"]
+                    data_info_res = await asyncio.gather(*data_info_lst)
+                    data_info_code = [re.findall(r"```(?:python)?\s*(.*?)\s*```",t[0] ,re.DOTALL)[0] for t in data_info_res]
+
+                    data_info_code_res = [run_python_code(code) for code in data_info_code]
+                    console.print("=== data info code res ===", data_info_code_res)
+
+                    new_result = []
+                    for t, t_data in zip(result, data_info_code_res):
+                        if "error" in t_data.lower():
+                            continue
+
+                        t['old_content'] = t['content']
+                        t['content'] = t_data
+                        new_result.append(t)
+                    return new_result
                 elif self.data_eng == "ifind_data_agent":
                     return await self.data_client.ifind_data_agent(q["question"])
 
@@ -490,6 +596,7 @@ class QAAgent:
             new_retrieved_context.append({
                 "type": r.get("type", ""),
                 "content": r.get('content', '')[:4000],
+                "old_content": r.get('old_content', '')[:4000],
                 "url": r.get('url', ''),
             })
 
@@ -516,7 +623,7 @@ class QAAgent:
             new_useful_info.append({"url": item["url"], "content": item["useful_information"][:4000]})
         for item in new_results:
             if item.get("type") == "index":
-                new_useful_info.append({"url": item.get("url", ""), "content": item.get("content", "")[:4000]})
+                new_useful_info.append({"url": item.get("url", ""), "content": item.get("content", "")[:4000], "old_content": item.get("old_content", "")[:4000]})
 
 
         newly_retrieved_context_lst = str(new_results)
@@ -891,7 +998,7 @@ class QAAgent:
         # 使用异步并行处理
         results = await async_parallel_process(outlines_lst, process_outline)
 
-        outline2maxloop = len([res for res in results if res.get("loop_count") == MAX_LOOP_COUNT])
+        outline2maxloop = len([res for res in results if res.get("loop_count") > MAX_LOOP_COUNT])
         with st.chat_message("assistant"):
             st.markdown(f"{outline2maxloop}个outline达到了最大循环次数")
             log_event(f"{outline2maxloop}个outline达到了最大循环次数")

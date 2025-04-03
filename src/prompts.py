@@ -170,6 +170,34 @@ class Prompts:
     The Question: {question}
     Useful Information:"""
     )
+
+    DATA_ANALYZE = PromptTemplate(
+        input_variables=["data_info", "question", "now"],
+        template="""
+        假设你是一个codeAgent, 请根据用户问句，生成一段代码用来分析以下dataframe数据。今天是{now}.
+
+        ### 已安装的外部库：
+        conda install -c conda-forge ta-lib
+        conda install pandas
+        conda install scipy stattools statsmodels arch
+
+
+        ### 要求：
+        - 首先从所有dataframe数据中筛选出与用户输入相关的dataframe数据，不相关的dataframe数据请忽略，然后使用相关dataframe进行后续操作
+        - 只能使用默认的python库和上面已经安装的python库，不能使用其他python库
+        - 确保python代码的正确性和可读性，避免出现语法错误和逻辑错误，并且将代码用```python```包裹起来
+        - 需要对用户输入进行分析回答，分析回答的内容需要使用print()函数进行输出
+
+
+        用户输入：{question}
+
+        所有dataframe数据：
+        {data_info}
+
+
+        CodeAgent 代码块:"""
+    )
+
     VALIDATE_RETRIEVAL = PromptTemplate(
         input_variables=["useful_information", "question", "now"],
         template="""
@@ -236,11 +264,11 @@ class Prompts:
         1. Don't start your writing with '# title' or try to write other sections, only write the article paragraph content directly.
         2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
         3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is simple and easy to understand, so as to facilitate the reading of readers, mainly non-professionals.
-        4. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
-        5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
-        6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
-        7. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic, and you need to generate 'Writing' according to the 'Writing Plan'.
-        8. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
+        4. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
+        5. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
+        6. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic, and you need to generate 'Writing' according to the 'Writing Plan'.
+        7. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
+        8. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
         9. Do not include any other text than the paragraph content. please response in chinese.
         
         -----Entities Context-----
@@ -273,12 +301,12 @@ class Prompts:
         1. Don't start your writing with '# title' or try to write other sections, only write the article paragraph content directly.
         2. Please generate 3-5 paragraphs. Each paragraph is at least 500 words long.
         3. Please ensure that the data of the article is true and reliable, the logical structure is clear, the content is complete, and the style is simple and easy to understand, so as to facilitate the reading of readers, mainly non-professionals.
-        4. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
-        5. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
-        6. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
-        7. Maintain narrative consistency with previously written sections while avoiding content duplication. Ensure smooth transitions between sections.
-        8. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic, and you need to generate 'Writing' according to the 'Writing Plan'.
-        9. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
+        4. Please make sure that the numerical value, news information in the output 'writing' are all from the 'Context'.
+        5. For keywords information in output 'writing' paragraph content please use the markdown syntax ( **xxx**) to make it bold.
+        6. Maintain narrative consistency with previously written sections while avoiding content duplication. Ensure smooth transitions between sections.
+        7. Not all content in the 'Context' is closely related to the user's topic. You need to evaluate and filter the 'Context' based on the topic, and you need to generate 'Writing' according to the 'Writing Plan'.
+        8. Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). You DO NOT need to include a References or Sources section to list the sources at the end.
+        9. If the 'Context' includes structured information, you can mix with charts in output writing. Please use the grammar of markdown to generate tables and the grammar of mermaid to generate pictures (including mind maps, flow charts, pie charts, gantt charts, timeline charts, etc.)
         10. Do not include any other text than the paragraph content. please response in chinese.
         
         -----Entities Context-----

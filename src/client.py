@@ -64,7 +64,7 @@ class DataClient:
                         data = tb['data']
 
                         df = pd.DataFrame(data, columns=columns)
-                        df_str = df.to_string()
+                        df_str = df.to_markdown()
                         content = f"【{description}】\n{df_str}"
                         # print(f"【{description}】")
                         # print(df.head())
@@ -73,6 +73,7 @@ class DataClient:
                                 "description": description,
                                 "content": content,
                                 "type": "index",
+                                "query": query,
                                 "url": tb_info.get("url","")[:150]
                             })
                     except Exception as e:
@@ -103,7 +104,7 @@ class DataClient:
             # 将agent.answer中的var和 Type 删除掉
             final_res = re.sub(r"\nVar: \<result\_\d*\>; Type: \<class .*\>;", "", agent.answer)
             final_res = re.sub(r"result\_\d*", "", final_res)
-            return [{"content": final_res, "type": "index", "url": ""}]
+            return [{"content": final_res, "type": "index", "url": "", "query":"query"}]
         except Exception as e:
             print(f"ifind_data_agent: requests error:{e}")
             return []
@@ -168,7 +169,8 @@ class SearchClient:
                         "date": date,
                         "source": source,
                         "content": content,
-                        "type": "search"
+                        "type": "search",
+                        "query": query
                     })
 
                 return organic_results_lst[:max_results]

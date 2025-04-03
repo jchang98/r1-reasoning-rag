@@ -270,8 +270,8 @@ def cal_hallu_score_with_embed(data):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process lines from an input file.")
-    parser.add_argument("--input_file", default="/mnt/data/jinchang/smolagents/r1-reasoning-rag-v5_1/r1-reasoning-rag/src/eval/hallu/2017年中国会打台湾嘛_r1_raw_usefulinfo_0331.json", type=str, help="Path to the input file")
-    parser.add_argument("--output_file", default='/mnt/data/jinchang/smolagents/r1-reasoning-rag-v5_1/r1-reasoning-rag/src/eval/hallu/2017年中国会打台湾嘛_r1_raw_usefulinfo_0331.xlsx', type=str, help="Path to the output file")
+    parser.add_argument("--input_file", default="/mnt/data/jinchang/smolagents/r1-reasoning-rag-v5_1/r1-reasoning-rag/src/eval/hallu/re_r1_台湾_info2ans.json", type=str, help="Path to the input file")
+    parser.add_argument("--output_file", default='/mnt/data/jinchang/smolagents/r1-reasoning-rag-v5_1/r1-reasoning-rag/src/eval/hallu/re_r1_台湾_info2ans.xlsx', type=str, help="Path to the output file")
     parser.add_argument("--stage", default="usefulinfo", type=str, choices=['usefulinfo','raw'], help="which stage to eval")
 
     args = parser.parse_args()
